@@ -368,7 +368,7 @@ export default function Home() {
                 Contract: 0x1924...f2F2
               </a>
               <a
-                href="https://github.com"
+                href="https://github.com/MaxWK96/LocalOracle"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gray-300 transition-colors flex items-center gap-1"
