@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.bun/
+
+# Build outputs
+contracts/out/
+contracts/cache/
+frontend/.next/
+frontend/out/
+oracle-workflow/dist/
+
+# Environment & secrets (NEVER commit these)
+.env
+.env.*
+!.env.local.example
+oracle-workflow/.env
+oracle-workflow/config.staging.json
+oracle-workflow/config.production.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Foundry
+contracts/broadcast/
+
+# CRE build artifacts
+oracle-workflow/*.wasm
+oracle-workflow/javy-chainlink-sdk.plugin.wasm
+oracle-workflow/tmp.js
+bun.lockb
+
+# Misc
+*.log
+nul

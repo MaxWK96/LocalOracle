@@ -1,0 +1,16 @@
+# ==========================================================================
+# LocalOracle - CRE Project Settings
+# ==========================================================================
+# Prediction Market Resolution Oracle for Chainlink Convergence Hackathon 2026
+
+# ==========================================================================
+staging-settings:
+  rpcs:
+    - chain-name: ethereum-testnet-sepolia
+      url: https://ethereum-sepolia-rpc.publicnode.com
+
+# ==========================================================================
+production-settings:
+  rpcs:
+    - chain-name: ethereum-testnet-sepolia
+      url: https://ethereum-sepolia-rpc.publicnode.com

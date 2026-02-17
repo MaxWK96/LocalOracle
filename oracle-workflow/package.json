@@ -1,0 +1,18 @@
+{
+	"name": "localoracle-workflow",
+	"version": "1.0.0",
+	"description": "LocalOracle CRE Workflow - Prediction Market Resolution Oracle",
+	"main": "dist/main.js",
+	"scripts": {
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@chainlink/cre-sdk": "^1.0.7",
+		"viem": "2.34.0",
+		"zod": "3.25.76"
+	},
+	"devDependencies": {
+		"@types/bun": "1.2.21",
+		"typescript": "^5"
+	}
+}

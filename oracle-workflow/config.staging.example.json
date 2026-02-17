@@ -1,0 +1,9 @@
+{
+	"schedule": "0 */10 * * * *",
+	"predictionMarketAddress": "0x192403dE32d297e58f3CdbCADbfBfd2fd16ff2F2",
+	"chainSelectorName": "ethereum-testnet-sepolia",
+	"gasLimit": "300000",
+	"openWeatherApiKey": "YOUR_OPENWEATHERMAP_API_KEY",
+	"weatherApiKey": "YOUR_WEATHERAPI_KEY",
+	"anthropicApiKey": "YOUR_ANTHROPIC_API_KEY"
+}
