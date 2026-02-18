@@ -3,6 +3,9 @@ pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
 import "../src/PredictionMarket.sol";
+import "../src/MarketAgent.sol";
+import "../src/OracleGovernanceToken.sol";
+import "../src/OracleParameterRegistry.sol";
 import "../src/interfaces/IWorldID.sol";
 import "../src/interfaces/IERC20.sol";
 
@@ -70,7 +73,21 @@ contract DeployScript is Script {
             address(usdc)
         );
 
-        // 3. Create a demo market: "Will it rain in Stockholm?" ending 2 minutes from now
+        // 3. Deploy OracleGovernanceToken and wire it to the market
+        OracleGovernanceToken logToken = new OracleGovernanceToken();
+        logToken.setDistributor(address(market));          // market can issue rewards
+        market.setGovernanceToken(address(logToken));      // market knows the token
+
+        // 4. Deploy OracleParameterRegistry (governs oracle behaviour via LOG votes)
+        OracleParameterRegistry registry = new OracleParameterRegistry(address(logToken));
+
+        // 5. Deploy MarketAgent (autonomous AI betting wallet)
+        address deployer = vm.addr(deployerPrivateKey);
+        MarketAgent agent = new MarketAgent(address(usdc), address(market), deployer);
+        usdc.mint(address(agent), 100e6);   // seed with 100 USDC bankroll
+        market.registerAgent(address(agent)); // allow agent to bet without WorldID
+
+        // 6. Create a demo market: "Will it rain in Stockholm?" ending 2 minutes from now
         //    lat: 59.3293 * 1e6 = 59329300, lng: 18.0686 * 1e6 = 18068600
         market.createMarket(
             "Will it rain in Stockholm?",
@@ -86,12 +103,17 @@ contract DeployScript is Script {
         console.log("MockWorldID:", address(worldId));
         console.log("MockERC20 (USDC):", address(usdc));
         console.log("PredictionMarket:", address(market));
+        console.log("OracleGovernanceToken (LOG):", address(logToken));
+        console.log("OracleParameterRegistry:", address(registry));
+        console.log("MarketAgent:", address(agent));
         console.log("");
         console.log("Demo market #0 created: 'Will it rain in Stockholm?'");
         console.log("  Expires in 2 minutes (for testing settlement)");
+        console.log("  Creator received 100 LOG as creation reward");
         console.log("");
         console.log("NEXT STEPS:");
         console.log("  1. Copy the PredictionMarket address to config.staging.json");
         console.log("  2. Call setOracle() with the CRE workflow address");
+        console.log("  3. Copy OracleGovernanceToken + Registry addresses to frontend config");
     }
 }

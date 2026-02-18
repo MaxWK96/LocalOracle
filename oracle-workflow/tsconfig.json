@@ -11,5 +11,5 @@
 		"declarationMap": true,
 		"sourceMap": true
 	},
-	"include": ["main.ts", "lib/**/*.ts"]
+	"include": ["main.ts", "agent-main.ts", "lib/**/*.ts"]
 }

@@ -1,0 +1,24 @@
+# ==========================================================================
+# LocalOracle - Agent Trading Workflow Settings
+# ==========================================================================
+# Autonomous AI agent that places bets on prediction markets based on
+# weather forecast analysis vs. market-implied probability.
+# Runs every 6 hours (offset from the settlement workflow).
+
+# ==========================================================================
+staging-settings:
+  user-workflow:
+    workflow-name: "localoracle-agent-staging"
+  workflow-artifacts:
+    workflow-path: "./agent-main.ts"
+    config-path: "./config.agent.json"
+    secrets-path: ""
+
+# ==========================================================================
+production-settings:
+  user-workflow:
+    workflow-name: "localoracle-agent-production"
+  workflow-artifacts:
+    workflow-path: "./agent-main.ts"
+    config-path: "./config.agent.json"
+    secrets-path: ""

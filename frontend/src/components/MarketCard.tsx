@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useReadContract } from "thirdweb/react";
 import { Market, MarketCategory } from "@/lib/types";
+import { parameterRegistryContract, PARAMETER_REGISTRY_ADDRESS } from "@/lib/contracts";
 
 interface MarketCardProps {
   market: Market;
@@ -32,6 +34,9 @@ const categoryConfig: Record<MarketCategory, { color: string }> = {
   Community: { color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
 };
 
+const REGISTRY_DEPLOYED =
+  PARAMETER_REGISTRY_ADDRESS !== "0x0000000000000000000000000000000000000000";
+
 export default function MarketCard({ market, onSelect, isSelected }: MarketCardProps) {
   const [timeLeftStr, setTimeLeftStr] = useState("");
 
@@ -42,6 +47,14 @@ export default function MarketCard({ market, onSelect, isSelected }: MarketCardP
     }, 1000);
     return () => clearInterval(interval);
   }, [market.endTime]);
+
+  // Fetch active oracle params for this market (falls back to global if no market-specific params)
+  const { data: oracleParams } = useReadContract({
+    contract: parameterRegistryContract,
+    method: "getActiveParameters",
+    params: [BigInt(market.id)],
+    queryOptions: { enabled: REGISTRY_DEPLOYED },
+  });
 
   const totalPool = market.totalYesStake + market.totalNoStake;
   const yesPercent = totalPool > 0n
@@ -87,7 +100,7 @@ export default function MarketCard({ market, onSelect, isSelected }: MarketCardP
       </p>
 
       {/* Geo-fence badge */}
-      <div className="flex items-center gap-1 mb-3">
+      <div className="flex items-center gap-1 mb-2">
         <span className="text-[9px] text-gray-600 flex items-center gap-1">
           <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
@@ -95,6 +108,18 @@ export default function MarketCard({ market, onSelect, isSelected }: MarketCardP
           Geo-fenced: 5km radius
         </span>
       </div>
+
+      {/* Agent / governance connection labels */}
+      {!market.resolved && (
+        <div className="flex items-center gap-1.5 mb-3">
+          <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-900/20 border border-green-500/20 text-green-400/80 font-medium">
+            🤖 Agent watching
+          </span>
+          <span className="text-[9px] px-1.5 py-0.5 rounded bg-purple-900/20 border border-purple-500/20 text-purple-400/80 font-medium">
+            📋 Gov params v1.2
+          </span>
+        </div>
+      )}
 
       {/* Odds visualization */}
       <div className="flex items-center gap-2 mb-2">
@@ -147,8 +172,26 @@ export default function MarketCard({ market, onSelect, isSelected }: MarketCardP
         </div>
       </div>
 
+      {/* Oracle governance params */}
+      {oracleParams && (
+        <div className="mt-2 pt-2 border-t border-gray-700/20 flex items-center gap-2 flex-wrap">
+          <span className="text-[9px] text-gray-600">Oracle:</span>
+          {oracleParams.dataSources.map((src) => (
+            <span
+              key={src}
+              className="text-[9px] text-gray-500 bg-gray-800/60 px-1.5 py-0.5 rounded font-mono"
+            >
+              {src}
+            </span>
+          ))}
+          <span className="text-[9px] text-gray-600 ml-auto">
+            {oracleParams.consensusThreshold}% consensus
+          </span>
+        </div>
+      )}
+
       {/* Resolution method for resolved markets */}
-      {market.resolved && (
+      {market.resolved && !oracleParams && (
         <div className="mt-2 pt-1.5 text-[9px] text-gray-600 flex items-center gap-1">
           <svg className="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
@@ -156,6 +199,14 @@ export default function MarketCard({ market, onSelect, isSelected }: MarketCardP
           Resolved by: OpenWeatherMap + WeatherAPI consensus
         </div>
       )}
+
+      {/* View Details */}
+      <div className="mt-2 pt-1.5 flex items-center justify-end gap-0.5 text-[10px] text-gray-600 group-hover:text-blue-400/60 transition-colors">
+        View Details
+        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
     </button>
   );
 }
