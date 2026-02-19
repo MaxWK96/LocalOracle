@@ -7,6 +7,7 @@ import MapView from "@/components/MapView";
 import MarketList from "@/components/MarketList";
 import CreateMarketForm from "@/components/CreateMarketForm";
 import BetPanel from "@/components/BetPanel";
+import GridBackground from "@/components/GridBackground";
 import { Market } from "@/lib/types";
 import { MOCK_MARKETS } from "@/lib/mockData";
 import { Footer } from "@/components/Footer";
@@ -51,35 +52,34 @@ export default function Home() {
   const scrollToHowItWorks = () => howItWorksRef.current?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-950">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header onVerified={handleVerified} isVerified={isVerified} />
 
       {/* ── Hero Section ── */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-600/10 via-transparent to-transparent" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-500/5 rounded-full blur-3xl" />
-        <div className="relative max-w-4xl mx-auto px-6 py-16 md:py-24 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-xs font-medium mb-6">
-            <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
+        <GridBackground />
+        <div className="relative max-w-4xl mx-auto px-6 py-16 md:py-24 text-center z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-primary text-xs font-medium mb-6">
+            <span className="w-1.5 h-1.5 bg-accent rounded-full animate-glow-pulse" />
             Live on Ethereum Sepolia &bull; Built for World Chain
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-4">
-            Local<span className="text-blue-400">Oracle</span>
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
+            Local<span className="gradient-text">Oracle</span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
             Hyperlocal prediction markets with geo-fenced trading &mdash; only humans
             within 5km can participate, verified by World ID + location proof
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <button
               onClick={scrollToMap}
-              className="px-6 py-3 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/25"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors shadow-lg glow-primary"
             >
               Explore Nearby Markets
             </button>
             <button
               onClick={scrollToHowItWorks}
-              className="px-6 py-3 bg-gray-800 text-gray-300 rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors border border-gray-700"
+              className="px-6 py-3 bg-secondary text-secondary-foreground rounded-xl text-sm font-semibold hover:bg-secondary/80 transition-colors border border-border"
             >
               How It Works
             </button>
@@ -88,7 +88,7 @@ export default function Home() {
       </section>
 
       {/* ── Stats Bar ── */}
-      <section className="border-y border-gray-800/50 bg-gray-900/30">
+      <section className="border-y border-border/50 bg-secondary/10">
         <div className="max-w-5xl mx-auto px-6 py-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {[
@@ -99,12 +99,12 @@ export default function Home() {
             ].map((stat) => (
               <div key={stat.label} className="text-center md:text-left">
                 <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                  <svg className="w-4 h-4 text-blue-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                  <svg className="w-4 h-4 text-primary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d={stat.icon} />
                   </svg>
-                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-medium">{stat.label}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{stat.label}</span>
                 </div>
-                <p className="text-lg font-bold text-white">{stat.value}</p>
+                <p className="text-lg font-bold">{stat.value}</p>
               </div>
             ))}
           </div>
@@ -112,19 +112,19 @@ export default function Home() {
       </section>
 
       {/* ── Why LocalOracle? ── */}
-      <section className="border-b border-gray-800/50 bg-gray-950">
+      <section className="border-b border-border/50 bg-background">
         <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
           <div className="flex flex-col md:flex-row items-start gap-8">
             <div className="md:w-1/3">
-              <h2 className="text-xl md:text-2xl font-bold text-white mb-2">Why LocalOracle?</h2>
-              <div className="w-12 h-1 bg-blue-500 rounded-full" />
+              <h2 className="text-xl md:text-2xl font-bold mb-2">Why LocalOracle?</h2>
+              <div className="w-12 h-1 bg-primary rounded-full" />
             </div>
             <div className="md:w-2/3">
-              <p className="text-sm text-gray-400 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Traditional prediction markets lack local context and sybil resistance.
-                LocalOracle combines <span className="text-white font-medium">World ID</span> (one
-                human = one stake cap), <span className="text-white font-medium">geo-fencing</span> (only
-                locals within 5km participate), and <span className="text-white font-medium">Chainlink
+                LocalOracle combines <span className="text-foreground font-medium">World ID</span> (one
+                human = one stake cap), <span className="text-foreground font-medium">geo-fencing</span> (only
+                locals within 5km participate), and <span className="text-foreground font-medium">Chainlink
                 CRE</span> multi-source oracles to create trustless markets for neighborhood
                 flooding, transit delays, and community events. Locals have skin in the
                 game; outcomes are automated and verifiable on-chain.
@@ -135,19 +135,19 @@ export default function Home() {
       </section>
 
       {/* ── Agent + Governance Connection Banner ── */}
-      <div className="border-b border-gray-800/50 bg-gray-900/20">
+      <div className="border-b border-border/50 bg-secondary/5">
         <div className="max-w-5xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            <span className="flex items-center gap-1 px-2 py-0.5 bg-green-900/20 border border-green-500/20 rounded-full text-green-400 text-[10px] font-medium">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1 px-2 py-0.5 bg-accent/10 border border-accent/20 rounded-full text-accent text-[10px] font-medium">
               🤖 Agent 001 active
             </span>
             <span>Auto-trading on open markets using Chainlink CRE data feeds</span>
           </div>
           <div className="flex items-center gap-4 text-[10px]">
-            <Link href="/agent" className="text-green-400/70 hover:text-green-400 transition-colors">
+            <Link href="/agent" className="text-accent/70 hover:text-accent transition-colors">
               View Agent →
             </Link>
-            <Link href="/governance" className="text-purple-400/70 hover:text-purple-400 transition-colors">
+            <Link href="/governance" className="text-primary/70 hover:text-primary transition-colors">
               Governance →
             </Link>
           </div>
@@ -163,7 +163,7 @@ export default function Home() {
             selectedMarket={selectedMarket}
           />
         </div>
-        <div className="flex-[3] border-l border-gray-800/50 bg-gray-900/30 min-w-[300px]">
+        <div className="flex-[3] border-l border-border/50 bg-secondary/10 min-w-[300px]">
           <MarketList
             markets={markets}
             selectedMarket={selectedMarket}
@@ -174,11 +174,11 @@ export default function Home() {
       </section>
 
       {/* ── How It Works ── */}
-      <section ref={howItWorksRef} className="border-t border-gray-800/50 bg-gray-950">
+      <section ref={howItWorksRef} className="border-t border-border/50 bg-background">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">How It Works</h2>
-            <p className="text-gray-500 text-sm">Four steps to prediction market participation</p>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">How It Works</h2>
+            <p className="text-muted-foreground text-sm">Four steps to prediction market participation</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -191,8 +191,9 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                   </svg>
                 ),
-                color: "from-green-500/20 to-green-600/5 border-green-500/20",
-                iconColor: "text-green-400",
+                border: "border-accent/20",
+                bg: "bg-accent/5",
+                iconColor: "text-accent",
               },
               {
                 step: "2",
@@ -204,8 +205,9 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                   </svg>
                 ),
-                color: "from-blue-500/20 to-blue-600/5 border-blue-500/20",
-                iconColor: "text-blue-400",
+                border: "border-primary/20",
+                bg: "bg-primary/5",
+                iconColor: "text-primary",
               },
               {
                 step: "3",
@@ -216,8 +218,9 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
                   </svg>
                 ),
-                color: "from-amber-500/20 to-amber-600/5 border-amber-500/20",
-                iconColor: "text-amber-400",
+                border: "border-accent/20",
+                bg: "bg-accent/5",
+                iconColor: "text-accent",
               },
               {
                 step: "4",
@@ -228,67 +231,68 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                   </svg>
                 ),
-                color: "from-purple-500/20 to-purple-600/5 border-purple-500/20",
-                iconColor: "text-purple-400",
+                border: "border-primary/20",
+                bg: "bg-primary/5",
+                iconColor: "text-primary",
               },
             ].map((item) => (
               <div
                 key={item.step}
-                className={`relative p-6 rounded-2xl border bg-gradient-to-b ${item.color} transition-transform hover:-translate-y-1`}
+                className={`relative p-6 rounded-2xl border ${item.border} ${item.bg} transition-transform hover:-translate-y-1`}
               >
-                <div className="absolute top-4 right-4 text-4xl font-black text-white/5">
+                <div className="absolute top-4 right-4 text-4xl font-black text-foreground/5">
                   {item.step}
                 </div>
                 <div className={`${item.iconColor} mb-4`}>{item.icon}</div>
-                <h3 className="text-sm font-bold text-white mb-2">{item.title}</h3>
-                <p className="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
+                <h3 className="text-sm font-bold mb-2">{item.title}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
 
           {/* ── Example Resolution Flow ── */}
-          <div className="mt-12 p-6 rounded-2xl bg-gray-900/50 border border-gray-800/50">
-            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-              <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+          <div className="mt-12 glass p-6 rounded-2xl">
+            <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
               </svg>
               Example Resolution Flow
             </h3>
             <div className="space-y-2.5 text-xs">
               <div className="flex items-start gap-3">
-                <span className="text-gray-600 shrink-0 w-4 text-right font-mono">1.</span>
-                <p className="text-gray-400">
-                  <span className="text-white font-medium">Question:</span>{" "}
+                <span className="text-muted-foreground shrink-0 w-4 text-right font-mono">1.</span>
+                <p className="text-muted-foreground">
+                  <span className="text-foreground font-medium">Question:</span>{" "}
                   &ldquo;Will it rain in Strandv&auml;gen tomorrow at 15:00?&rdquo;
                 </p>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-gray-600 shrink-0 w-4 text-right font-mono">2.</span>
-                <p className="text-gray-400">
-                  <span className="text-white font-medium">CRE fetches:</span>{" "}
-                  OpenWeatherMap <span className="text-sky-400 font-mono">(code 500 = rain)</span>{" "}
-                  + WeatherAPI <span className="text-amber-400 font-mono">(code 1000 = clear)</span>
+                <span className="text-muted-foreground shrink-0 w-4 text-right font-mono">2.</span>
+                <p className="text-muted-foreground">
+                  <span className="text-foreground font-medium">CRE fetches:</span>{" "}
+                  OpenWeatherMap <span className="text-primary font-mono">(code 500 = rain)</span>{" "}
+                  + WeatherAPI <span className="text-accent font-mono">(code 1000 = clear)</span>
                 </p>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-gray-600 shrink-0 w-4 text-right font-mono">3.</span>
-                <p className="text-gray-400">
-                  <span className="text-red-400 font-medium">Sources disagree</span>{" "}
+                <span className="text-muted-foreground shrink-0 w-4 text-right font-mono">3.</span>
+                <p className="text-muted-foreground">
+                  <span className="text-destructive font-medium">Sources disagree</span>{" "}
                   &rarr; AI adjudicator (Claude) reviews raw weather codes, descriptions, and station data
                 </p>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-gray-600 shrink-0 w-4 text-right font-mono">4.</span>
-                <p className="text-gray-400">
-                  <span className="text-white font-medium">AI determines:</span>{" "}
-                  WeatherAPI more reliable for this location &rarr; Outcome: <span className="text-red-400 font-semibold">NO</span> (not raining)
+                <span className="text-muted-foreground shrink-0 w-4 text-right font-mono">4.</span>
+                <p className="text-muted-foreground">
+                  <span className="text-foreground font-medium">AI determines:</span>{" "}
+                  WeatherAPI more reliable for this location &rarr; Outcome: <span className="text-destructive font-semibold">NO</span> (not raining)
                 </p>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-gray-600 shrink-0 w-4 text-right font-mono">5.</span>
-                <p className="text-gray-400">
-                  <span className="text-white font-medium">Settlement:</span>{" "}
-                  <span className="font-mono text-blue-400">resolveMarket(1, false)</span> called on-chain
+                <span className="text-muted-foreground shrink-0 w-4 text-right font-mono">5.</span>
+                <p className="text-muted-foreground">
+                  <span className="text-foreground font-medium">Settlement:</span>{" "}
+                  <span className="font-mono text-primary">resolveMarket(1, false)</span> called on-chain
                   &rarr; Winners claim proportional USDC payouts
                 </p>
               </div>
@@ -298,11 +302,11 @@ export default function Home() {
       </section>
 
       {/* ── Powered By Chainlink ── */}
-      <section className="border-t border-gray-800/50 bg-gray-900/20">
+      <section className="border-t border-border/50 bg-secondary/10">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Powered by Chainlink</h2>
-            <p className="text-gray-500 text-sm">Decentralized infrastructure for trustless market resolution</p>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">Powered by Chainlink</h2>
+            <p className="text-muted-foreground text-sm">Decentralized infrastructure for trustless market resolution</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
@@ -354,11 +358,11 @@ export default function Home() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="p-5 rounded-xl bg-gray-800/30 border border-gray-700/30 hover:border-gray-600/50 transition-colors"
+                className="glass rounded-xl p-5 hover:border-primary/30 transition-colors"
               >
-                <div className="text-blue-400 mb-3">{item.icon}</div>
-                <h3 className="text-sm font-bold text-white mb-1.5">{item.title}</h3>
-                <p className="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
+                <div className="text-primary mb-3">{item.icon}</div>
+                <h3 className="text-sm font-bold mb-1.5">{item.title}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>

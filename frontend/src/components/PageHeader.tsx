@@ -1,3 +1,8 @@
+"use client";
+
+import { motion } from "framer-motion";
+import GridBackground from "./GridBackground";
+
 interface PageHeaderProps {
   title: string;
   description: string;
@@ -7,24 +12,25 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, icon, badge }: PageHeaderProps) {
   return (
-    <div className="relative overflow-hidden border-b border-gray-800/50 bg-gradient-to-b from-gray-900 to-gray-950">
-      {/* Subtle glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-transparent to-purple-600/5 pointer-events-none" />
+    <div className="relative overflow-hidden pt-10 pb-12">
+      <GridBackground />
 
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 py-10 md:py-14">
-        {badge && (
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-semibold uppercase tracking-wider mb-4">
-            <span className="w-1 h-1 bg-blue-400 rounded-full animate-pulse" />
-            {badge}
+      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 z-10">
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          {badge && (
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary mb-4 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-glow-pulse" />
+              {badge}
+            </span>
+          )}
+          <div className="flex items-center gap-3 mb-3">
+            {icon && <span className="text-3xl leading-none">{icon}</span>}
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight gradient-text">{title}</h1>
           </div>
-        )}
-        <div className="flex items-center gap-3 mb-3">
-          {icon && <span className="text-3xl leading-none">{icon}</span>}
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{title}</h1>
-        </div>
-        <p className="text-gray-400 text-base md:text-lg max-w-2xl leading-relaxed">
-          {description}
-        </p>
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl leading-relaxed">
+            {description}
+          </p>
+        </motion.div>
       </div>
     </div>
   );

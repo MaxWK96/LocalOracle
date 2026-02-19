@@ -56,7 +56,7 @@ const DEMO_PROPOSALS = [
     deadline:     BigInt(now + 86400), // ends in 24h
     executed:     false,
     statusLabel:  "Active",
-    statusColor:  "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    statusColor:  "bg-primary/20 text-primary border-primary/30",
   },
   {
     id: 2,
@@ -71,7 +71,7 @@ const DEMO_PROPOSALS = [
     deadline:     BigInt(now - 3600), // ended 1h ago
     executed:     true,
     statusLabel:  "Executed",
-    statusColor:  "bg-green-500/20 text-green-400 border-green-500/30",
+    statusColor:  "bg-accent/20 text-accent border-accent/30",
   },
   {
     id: 3,
@@ -86,7 +86,7 @@ const DEMO_PROPOSALS = [
     deadline:     BigInt(now - 7200), // ended 2h ago
     executed:     false,
     statusLabel:  "Rejected",
-    statusColor:  "bg-red-500/20 text-red-400 border-red-500/30",
+    statusColor:  "bg-destructive/20 text-destructive border-destructive/30",
   },
 ];
 
@@ -97,21 +97,21 @@ function DemoProposalCard({ p }: { p: (typeof DEMO_PROPOSALS)[number] }) {
   const forPct = totalVotes > 0n ? Number((p.forVotes * 100n) / totalVotes) : 50;
 
   return (
-    <div className="p-5 rounded-xl border border-gray-700/40 bg-gray-900/30 space-y-4 opacity-90">
+    <div className="glass p-5 rounded-xl space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[10px] font-bold text-gray-500 bg-gray-800 px-2 py-0.5 rounded-full">#{p.id}</span>
+          <span className="text-[10px] font-bold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">#{p.id}</span>
           <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border ${p.statusColor}`}>
             {p.statusLabel}
           </span>
-          <span className="text-[10px] text-gray-500">Global parameters</span>
-          <span className="text-[10px] text-gray-600 italic">demo</span>
+          <span className="text-[10px] text-muted-foreground">Global parameters</span>
+          <span className="text-[10px] text-muted-foreground italic">demo</span>
         </div>
-        <span className="text-[10px] text-gray-500 shrink-0">{timeLeft(p.deadline)}</span>
+        <span className="text-[10px] text-muted-foreground shrink-0">{timeLeft(p.deadline)}</span>
       </div>
 
-      <div className="text-xs text-gray-400">
-        Proposer: <span className="font-mono text-gray-300">{shortAddr(p.proposer)}</span>
+      <div className="text-xs text-muted-foreground">
+        Proposer: <span className="font-mono text-foreground">{shortAddr(p.proposer)}</span>
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-xs">
@@ -121,23 +121,23 @@ function DemoProposalCard({ p }: { p: (typeof DEMO_PROPOSALS)[number] }) {
           { label: "Settlement Fee", value: `${p.settlementFee} bps`    },
           { label: "AI Provider",    value: p.aiProvider                },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-gray-800/50 rounded-lg p-2.5 space-y-0.5">
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</div>
-            <div className="text-gray-200 font-medium truncate">{value}</div>
+          <div key={label} className="bg-secondary/50 rounded-lg p-2.5 space-y-0.5">
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</div>
+            <div className="text-foreground font-medium truncate">{value}</div>
           </div>
         ))}
       </div>
 
       <div className="space-y-1">
         <div className="flex justify-between text-[10px]">
-          <span className="text-green-400">{formatLOG(p.forVotes)} LOG FOR</span>
-          <span className="text-red-400">{formatLOG(p.againstVotes)} LOG AGAINST</span>
+          <span className="text-accent">{formatLOG(p.forVotes)} LOG FOR</span>
+          <span className="text-destructive">{formatLOG(p.againstVotes)} LOG AGAINST</span>
         </div>
-        <div className="h-2 bg-gray-800 rounded-full overflow-hidden flex">
-          <div className="h-full bg-gradient-to-r from-green-600 to-green-500" style={{ width: `${forPct}%` }} />
-          <div className="h-full bg-gradient-to-r from-red-600 to-red-500"   style={{ width: `${100 - forPct}%` }} />
+        <div className="h-2 bg-secondary rounded-full overflow-hidden flex">
+          <div className="h-full bg-accent" style={{ width: `${forPct}%` }} />
+          <div className="h-full bg-destructive/60" style={{ width: `${100 - forPct}%` }} />
         </div>
-        <div className="text-[10px] text-gray-600 text-center">
+        <div className="text-[10px] text-muted-foreground text-center">
           {formatLOG(totalVotes)} LOG cast · 51% quorum required
         </div>
       </div>
@@ -157,7 +157,7 @@ function ProposalRow({ proposalId, logBalance }: { proposalId: number; logBalanc
     params: [BigInt(proposalId)],
   });
 
-  if (isLoading) return <div className="p-4 rounded-xl border border-gray-800/50 bg-gray-900/40 animate-pulse h-32" />;
+  if (isLoading) return <div className="glass p-4 rounded-xl animate-pulse h-32" />;
   if (!proposal || proposal.proposer === "0x0000000000000000000000000000000000000000") return null;
 
   const nowBig = BigInt(Math.floor(Date.now() / 1000));
@@ -167,9 +167,9 @@ function ProposalRow({ proposalId, logBalance }: { proposalId: number; logBalanc
   const forPct = totalVotes > 0n ? Number((proposal.forVotes * 100n) / totalVotes) : 50;
   const canVote = isActive && logBalance > 0n && localVoted === null;
 
-  const statusColor = proposal.executed ? "bg-green-500/20 text-green-400 border-green-500/30"
-    : isActive ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
-    : "bg-gray-500/20 text-gray-400 border-gray-500/30";
+  const statusColor = proposal.executed ? "bg-accent/20 text-accent border-accent/30"
+    : isActive ? "bg-primary/20 text-primary border-primary/30"
+    : "bg-secondary text-muted-foreground border-border";
   const statusLabel = proposal.executed ? "Executed" : isActive ? "Active" : "Ended";
 
   function handleVote(support: boolean) {
@@ -182,16 +182,16 @@ function ProposalRow({ proposalId, logBalance }: { proposalId: number; logBalanc
   }
 
   return (
-    <div className="p-5 rounded-xl border border-gray-700/50 bg-gray-900/40 space-y-4">
+    <div className="glass p-5 rounded-xl space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[10px] font-bold text-gray-500 bg-gray-800 px-2 py-0.5 rounded-full">#{proposalId}</span>
+          <span className="text-[10px] font-bold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">#{proposalId}</span>
           <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border ${statusColor}`}>{statusLabel}</span>
-          <span className="text-[10px] text-gray-500">{proposal.targetMarketId === 0n ? "Global parameters" : `Market #${proposal.targetMarketId}`}</span>
+          <span className="text-[10px] text-muted-foreground">{proposal.targetMarketId === 0n ? "Global parameters" : `Market #${proposal.targetMarketId}`}</span>
         </div>
-        <span className="text-[10px] text-gray-500 shrink-0">{timeLeft(proposal.deadline)}</span>
+        <span className="text-[10px] text-muted-foreground shrink-0">{timeLeft(proposal.deadline)}</span>
       </div>
-      <div className="text-xs text-gray-400">Proposer: <span className="font-mono text-gray-300">{shortAddr(proposal.proposer)}</span></div>
+      <div className="text-xs text-muted-foreground">Proposer: <span className="font-mono text-foreground">{shortAddr(proposal.proposer)}</span></div>
       <div className="grid grid-cols-2 gap-2 text-xs">
         {[
           { label: "Data Sources",   value: proposal.proposed.dataSources.join(", ") || "—" },
@@ -199,40 +199,40 @@ function ProposalRow({ proposalId, logBalance }: { proposalId: number; logBalanc
           { label: "Settlement Fee", value: `${proposal.proposed.settlementFee} bps`          },
           { label: "AI Provider",    value: proposal.proposed.aiProvider || "—"              },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-gray-800/50 rounded-lg p-2.5 space-y-0.5">
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</div>
-            <div className="text-gray-200 font-medium truncate">{value}</div>
+          <div key={label} className="bg-secondary/50 rounded-lg p-2.5 space-y-0.5">
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</div>
+            <div className="text-foreground font-medium truncate">{value}</div>
           </div>
         ))}
       </div>
       <div className="space-y-1">
         <div className="flex justify-between text-[10px]">
-          <span className="text-green-400">{formatLOG(proposal.forVotes)} FOR</span>
-          <span className="text-red-400">{formatLOG(proposal.againstVotes)} AGAINST</span>
+          <span className="text-accent">{formatLOG(proposal.forVotes)} FOR</span>
+          <span className="text-destructive">{formatLOG(proposal.againstVotes)} AGAINST</span>
         </div>
-        <div className="h-2 bg-gray-800 rounded-full overflow-hidden flex">
-          <div className="h-full bg-gradient-to-r from-green-600 to-green-500 transition-all" style={{ width: `${forPct}%` }} />
-          <div className="h-full bg-gradient-to-r from-red-600 to-red-500 transition-all"   style={{ width: `${100 - forPct}%` }} />
+        <div className="h-2 bg-secondary rounded-full overflow-hidden flex">
+          <div className="h-full bg-accent transition-all" style={{ width: `${forPct}%` }} />
+          <div className="h-full bg-destructive/60 transition-all" style={{ width: `${100 - forPct}%` }} />
         </div>
-        <div className="text-[10px] text-gray-600 text-center">{formatLOG(totalVotes)} LOG cast · 51% quorum required</div>
+        <div className="text-[10px] text-muted-foreground text-center">{formatLOG(totalVotes)} LOG cast · 51% quorum required</div>
       </div>
       <div className="flex items-center gap-2 pt-1">
         {localVoted !== null ? (
-          <div className="text-xs text-gray-400 italic">You voted {localVoted ? "FOR" : "AGAINST"} — tx submitted</div>
+          <div className="text-xs text-muted-foreground italic">You voted {localVoted ? "FOR" : "AGAINST"} — tx submitted</div>
         ) : canVote ? (
           <>
             <button onClick={() => handleVote(true)} disabled={isPending}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-600/20 text-green-400 border border-green-500/30 hover:bg-green-600/30 transition-colors disabled:opacity-50">Vote FOR</button>
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-accent/20 text-accent border border-accent/30 hover:bg-accent/30 transition-colors disabled:opacity-50">Vote FOR</button>
             <button onClick={() => handleVote(false)} disabled={isPending}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600/30 transition-colors disabled:opacity-50">Vote AGAINST</button>
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-colors disabled:opacity-50">Vote AGAINST</button>
           </>
         ) : isActive && logBalance === 0n ? (
-          <span className="text-xs text-gray-600 italic">Need LOG tokens to vote</span>
+          <span className="text-xs text-muted-foreground italic">Need LOG tokens to vote</span>
         ) : isEnded ? (
           <button onClick={handleExecute} disabled={isPending}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 transition-colors disabled:opacity-50">Execute Proposal</button>
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors disabled:opacity-50">Execute Proposal</button>
         ) : null}
-        {isPending && <span className="text-xs text-gray-500 animate-pulse">Submitting…</span>}
+        {isPending && <span className="text-xs text-muted-foreground animate-pulse">Submitting…</span>}
       </div>
     </div>
   );
@@ -269,47 +269,47 @@ function CreateProposalModal({ onClose, logBalance }: { onClose: () => void; log
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="w-full max-w-lg bg-gray-900 border border-gray-700/50 rounded-2xl p-6 space-y-5 shadow-2xl">
+      <div className="w-full max-w-lg glass rounded-2xl p-6 space-y-5 shadow-2xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white">Create Proposal</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xl leading-none">×</button>
+          <h2 className="text-lg font-bold">Create Proposal</h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl leading-none">×</button>
         </div>
-        <p className="text-xs text-gray-400">Requires 10,000 LOG · 3-day voting period · 51% quorum</p>
-        {error && <div className="text-xs text-red-400 bg-red-900/20 border border-red-500/30 rounded-lg px-3 py-2">{error}</div>}
+        <p className="text-xs text-muted-foreground">Requires 10,000 LOG · 3-day voting period · 51% quorum</p>
+        {error && <div className="text-xs text-destructive bg-destructive/10 border border-destructive/30 rounded-lg px-3 py-2">{error}</div>}
         <div className="space-y-3">
           <label className="block space-y-1">
-            <span className="text-xs text-gray-400 font-medium">Data Sources (comma-separated)</span>
+            <span className="text-xs text-muted-foreground font-medium">Data Sources (comma-separated)</span>
             <input type="text" value={sources} onChange={(e) => setSources(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/60" />
+              className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/60" />
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block space-y-1">
-              <span className="text-xs text-gray-400 font-medium">Consensus Threshold (%)</span>
+              <span className="text-xs text-muted-foreground font-medium">Consensus Threshold (%)</span>
               <input type="number" value={threshold} onChange={(e) => setThreshold(e.target.value)} min={1} max={100}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/60" />
+                className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/60" />
             </label>
             <label className="block space-y-1">
-              <span className="text-xs text-gray-400 font-medium">Settlement Fee (bps)</span>
+              <span className="text-xs text-muted-foreground font-medium">Settlement Fee (bps)</span>
               <input type="number" value={fee} onChange={(e) => setFee(e.target.value)} min={0}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/60" />
+                className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/60" />
             </label>
           </div>
           <label className="block space-y-1">
-            <span className="text-xs text-gray-400 font-medium">AI Provider</span>
+            <span className="text-xs text-muted-foreground font-medium">AI Provider</span>
             <input type="text" value={aiProvider} onChange={(e) => setAiProvider(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/60" />
+              className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/60" />
           </label>
           <label className="block space-y-1">
-            <span className="text-xs text-gray-400 font-medium">Target Market ID (0 = global)</span>
+            <span className="text-xs text-muted-foreground font-medium">Target Market ID (0 = global)</span>
             <input type="number" value={targetMarketId} onChange={(e) => setTargetMkt(e.target.value)} min={0}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/60" />
+              className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/60" />
           </label>
         </div>
         <div className="flex gap-3">
           <button onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-gray-400 border border-gray-700 hover:border-gray-500 transition-colors">Cancel</button>
+            className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-muted-foreground border border-border hover:border-primary/50 transition-colors">Cancel</button>
           <button onClick={handleSubmit} disabled={isPending || logBalance < THRESHOLD}
-            className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             {isPending ? "Submitting…" : "Create Proposal"}
           </button>
         </div>
@@ -355,7 +355,7 @@ export default function GovernancePage() {
   const showDemo       = totalProposals === 0;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-950 text-white">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
 
       <main className="flex-1 pb-20">
@@ -366,19 +366,19 @@ export default function GovernancePage() {
         />
 
         {/* Governable parameters */}
-        <section className="border-b border-gray-800/50">
+        <section className="border-b border-border/50">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-            <h2 className="text-lg font-bold text-white mb-5">What&apos;s Governable</h2>
+            <h2 className="text-lg font-bold mb-5">What&apos;s Governable</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {GOVERNABLE_PARAMS.map(({ name, desc, live }) => (
-                <div key={name} className="p-4 bg-gray-800/40 rounded-xl border border-gray-700/40 space-y-1.5">
+                <div key={name} className="glass p-4 rounded-xl space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <div className="font-semibold text-sm text-blue-400">{name}</div>
+                    <div className="font-semibold text-sm text-primary">{name}</div>
                     {!live && (
-                      <span className="text-[9px] text-gray-600 bg-gray-800 px-1.5 py-0.5 rounded border border-gray-700">future</span>
+                      <span className="text-[9px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded border border-border">future</span>
                     )}
                   </div>
-                  <div className="text-xs text-gray-400">{desc}</div>
+                  <div className="text-xs text-muted-foreground">{desc}</div>
                 </div>
               ))}
             </div>
@@ -390,29 +390,29 @@ export default function GovernancePage() {
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-6">
               <div className="text-center">
-                <div className="text-xl font-bold text-white">{showDemo ? "3" : String(totalProposals)}</div>
-                <div className="text-[10px] text-gray-500">Proposals</div>
+                <div className="text-xl font-bold">{showDemo ? "3" : String(totalProposals)}</div>
+                <div className="text-[10px] text-muted-foreground">Proposals</div>
               </div>
-              <div className="w-px h-8 bg-gray-800" />
+              <div className="w-px h-8 bg-border" />
               <div className="text-center">
-                <div className="text-xl font-bold text-white">3 days</div>
-                <div className="text-[10px] text-gray-500">Voting Period</div>
+                <div className="text-xl font-bold">3 days</div>
+                <div className="text-[10px] text-muted-foreground">Voting Period</div>
               </div>
-              <div className="w-px h-8 bg-gray-800" />
+              <div className="w-px h-8 bg-border" />
               <div className="text-center">
-                <div className="text-xl font-bold text-white">51%</div>
-                <div className="text-[10px] text-gray-500">Quorum</div>
+                <div className="text-xl font-bold">51%</div>
+                <div className="text-[10px] text-muted-foreground">Quorum</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
               {account && userLogBalance > 0n && (
                 <div className="text-right">
-                  <div className="text-[10px] text-gray-500">Your LOG</div>
-                  <div className="text-sm font-bold text-purple-300">{formatLOG(userLogBalance)}</div>
+                  <div className="text-[10px] text-muted-foreground">Your LOG</div>
+                  <div className="text-sm font-bold text-primary">{formatLOG(userLogBalance)}</div>
                 </div>
               )}
               <button onClick={() => setShowCreateModal(true)} disabled={!account}
-                className="px-4 py-2 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                className="px-4 py-2 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                 + Propose
               </button>
             </div>
@@ -431,31 +431,31 @@ export default function GovernancePage() {
 
             {/* Left sidebar */}
             <div className="space-y-4">
-              {/* Earn LOG — prominent */}
-              <div className="rounded-xl border border-purple-500/20 bg-purple-900/10 p-5 space-y-3">
+              {/* Earn LOG */}
+              <div className="glass rounded-xl p-5 space-y-3">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🪙</span>
-                  <h3 className="text-sm font-semibold text-purple-300">Earn LOG</h3>
+                  <h3 className="text-sm font-semibold text-primary">Earn LOG</h3>
                 </div>
-                <ul className="space-y-2.5 text-xs text-gray-300">
+                <ul className="space-y-2.5 text-xs text-muted-foreground">
                   <li className="flex items-start gap-2.5">
-                    <span className="text-purple-400 shrink-0 font-bold w-6">100</span>
+                    <span className="text-accent shrink-0 font-bold w-6">100</span>
                     <span>LOG for creating a market</span>
                   </li>
                   <li className="flex items-start gap-2.5">
-                    <span className="text-purple-400 shrink-0 font-bold w-6">1:1</span>
+                    <span className="text-accent shrink-0 font-bold w-6">1:1</span>
                     <span>LOG per USDC staked</span>
                   </li>
                   <li className="flex items-start gap-2.5">
-                    <span className="text-purple-400 shrink-0 font-bold w-6">10k</span>
+                    <span className="text-accent shrink-0 font-bold w-6">10k</span>
                     <span>LOG required to propose</span>
                   </li>
                 </ul>
               </div>
 
               {/* How it works */}
-              <div className="rounded-xl border border-gray-800/50 bg-gray-900/30 p-5 space-y-3">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">How It Works</h3>
+              <div className="glass rounded-xl p-5 space-y-3">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">How It Works</h3>
                 <div className="space-y-3">
                   {[
                     { step: "1", title: "Earn LOG",      body: "Create markets or stake to earn from the 1M LOG pool." },
@@ -463,10 +463,10 @@ export default function GovernancePage() {
                     { step: "3", title: "Execute",        body: "51%+ quorum → anyone can execute. Changes apply immediately." },
                   ].map(({ step, title, body }) => (
                     <div key={step} className="flex gap-2.5">
-                      <span className="text-[10px] font-bold text-gray-600 bg-gray-800 w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5">{step}</span>
+                      <span className="text-[10px] font-bold text-muted-foreground bg-secondary w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5">{step}</span>
                       <div>
-                        <div className="text-xs font-semibold text-gray-300">{title}</div>
-                        <div className="text-[10px] text-gray-500 leading-relaxed">{body}</div>
+                        <div className="text-xs font-semibold">{title}</div>
+                        <div className="text-[10px] text-muted-foreground leading-relaxed">{body}</div>
                       </div>
                     </div>
                   ))}
@@ -476,7 +476,7 @@ export default function GovernancePage() {
 
             {/* Right: Proposals */}
             <div className="lg:col-span-3 space-y-3">
-              <h2 className="text-sm font-semibold text-gray-300">
+              <h2 className="text-sm font-semibold text-muted-foreground">
                 {showDemo ? "Demo Proposals" : `${totalProposals} Proposal${totalProposals !== 1 ? "s" : ""}`}
               </h2>
 
@@ -494,7 +494,7 @@ export default function GovernancePage() {
             </div>
           </div>
 
-          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>

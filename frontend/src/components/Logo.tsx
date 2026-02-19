@@ -18,7 +18,7 @@ export function Logo({ className = "", iconSize = 32 }: LogoProps) {
         <defs>
           <linearGradient id="loPinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#19e6b3" />
           </linearGradient>
         </defs>
         {/* Pin body */}
@@ -35,15 +35,7 @@ export function Logo({ className = "", iconSize = 32 }: LogoProps) {
       </svg>
 
       {/* Wordmark */}
-      <span
-        className="text-lg font-bold tracking-tight"
-        style={{
-          background: "linear-gradient(to right, #60a5fa, #a78bfa)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          backgroundClip: "text",
-        }}
-      >
+      <span className="gradient-text text-lg font-bold tracking-tight">
         LocalOracle
       </span>
     </div>

@@ -1,28 +1,164 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
+/* ── Design Tokens ─────────────────────────────────────────────────────────── */
+@theme {
+  /* Colors */
+  --color-background: hsl(225 25% 6%);
+  --color-foreground: hsl(210 40% 96%);
+
+  --color-card: hsl(225 25% 9%);
+  --color-card-foreground: hsl(210 40% 96%);
+
+  --color-primary: hsl(217 91% 60%);
+  --color-primary-foreground: hsl(225 25% 6%);
+
+  --color-secondary: hsl(225 20% 14%);
+  --color-secondary-foreground: hsl(210 40% 96%);
+
+  --color-muted: hsl(225 20% 14%);
+  --color-muted-foreground: hsl(215 15% 55%);
+
+  --color-accent: hsl(170 80% 50%);
+  --color-accent-foreground: hsl(225 25% 6%);
+
+  --color-destructive: hsl(0 72% 51%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+
+  --color-border: hsl(225 20% 16%);
+  --color-input: hsl(225 20% 16%);
+  --color-ring: hsl(217 91% 60%);
+
+  /* Fonts */
+  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+
+  /* Border radius */
+  --radius: 0.75rem;
+
+  /* Animations */
+  --animate-glow-pulse: glow-pulse 3s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-shimmer: shimmer 3s ease-in-out infinite;
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-slide-up: slide-up 0.6s ease-out;
+  --animate-scale-in: scale-in 0.3s ease-out;
+}
+
+/* ── Additional custom properties ─────────────────────────────────────────── */
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --shadow-glow: 0 0 40px -10px hsl(217 91% 60% / 0.3);
+  --shadow-glow-accent: 0 0 30px -8px hsl(170 80% 50% / 0.25);
+  --shadow-card: 0 4px 24px -4px hsl(225 25% 4% / 0.5);
+  --gradient-accent: linear-gradient(135deg, hsl(217 91% 60%), hsl(170 80% 50%));
+  --gradient-hero: linear-gradient(135deg, hsl(217 91% 60% / 0.15), hsl(170 80% 50% / 0.08));
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Utilities ────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .glass {
+    @apply bg-card/60 backdrop-blur-xl border border-border/50;
+  }
+
+  .glass-strong {
+    @apply bg-card/80 backdrop-blur-2xl border border-border/60;
+  }
+
+  .glow-primary {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .glow-accent {
+    box-shadow: var(--shadow-glow-accent);
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-accent);
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--gradient-accent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  .grid-pattern {
+    background-image:
+      linear-gradient(hsl(225 20% 16% / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(225 20% 16% / 0.3) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .dot-pattern {
+    background-image: radial-gradient(hsl(215 15% 55% / 0.15) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
 }
 
-/* Fix Leaflet z-index conflicts with modals */
+/* ── Keyframes ────────────────────────────────────────────────────────────── */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-up {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  0% { transform: scale(0.95); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Leaflet z-index fixes ───────────────────────────────────────────────── */
 .leaflet-pane {
   z-index: 1;
 }
 .leaflet-control {
   z-index: 2;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(225 25% 6%);
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(225 20% 16%);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(215 15% 55%);
 }

@@ -50,13 +50,18 @@ function StatCard({ label, value, sub, accent = "default" }: {
   label: string; value: string; sub?: string;
   accent?: "green" | "red" | "blue" | "purple" | "default";
 }) {
-  const cls = { green: "text-green-400", red: "text-red-400", blue: "text-blue-400",
-                purple: "text-purple-400", default: "text-white" }[accent];
+  const cls = {
+    green:   "text-accent",
+    red:     "text-destructive",
+    blue:    "text-primary",
+    purple:  "text-primary",
+    default: "text-foreground",
+  }[accent];
   return (
-    <div className="bg-gray-900/40 border border-gray-800/50 rounded-xl p-4 space-y-1">
-      <div className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</div>
+    <div className="glass rounded-xl p-4 space-y-1">
+      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</div>
       <div className={`text-2xl font-bold ${cls}`}>{value}</div>
-      {sub && <div className="text-[10px] text-gray-600">{sub}</div>}
+      {sub && <div className="text-[10px] text-muted-foreground">{sub}</div>}
     </div>
   );
 }
@@ -65,7 +70,7 @@ function StatCard({ label, value, sub, accent = "default" }: {
 
 function CRESection() {
   return (
-    <section className="border-b border-gray-800/50 bg-gradient-to-br from-blue-500/5 to-purple-500/5">
+    <section className="border-b border-border/50 bg-secondary/5">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
         <div className="flex items-center gap-3 mb-8">
           {/* Chainlink-style hex logo */}
@@ -74,61 +79,61 @@ function CRESection() {
             <path d="M2 23l14 7 14-7-14-7-14 7z"  fill="#375BD2" opacity="0.6" />
             <path d="M2 16l14 7 14-7"             stroke="#375BD2" strokeWidth="1.5" fill="none" />
           </svg>
-          <h2 className="text-xl font-bold text-white">Under the Hood: Chainlink CRE Workflow</h2>
+          <h2 className="text-xl font-bold">Under the Hood: Chainlink CRE Workflow</h2>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-900/50 rounded-xl border border-blue-500/20 p-5">
-            <h3 className="font-semibold text-blue-400 mb-4 flex items-center gap-2">
+          <div className="glass rounded-xl border border-primary/20 p-5">
+            <h3 className="font-semibold text-primary mb-4 flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
               </svg>
               Data Sources &amp; Consensus
             </h3>
-            <ul className="space-y-3 text-sm text-gray-300">
+            <ul className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-start gap-2.5">
-                <span className="text-blue-400 mt-0.5 shrink-0">•</span>
-                <span><span className="text-white font-medium">OpenWeatherMap</span> — 5-day forecast, hourly <code className="text-blue-300 text-xs">pop</code> (probability of precipitation), averaged over 4 slots</span>
+                <span className="text-primary mt-0.5 shrink-0">•</span>
+                <span><span className="text-foreground font-medium">OpenWeatherMap</span> — 5-day forecast, hourly <code className="text-primary text-xs">pop</code> (probability of precipitation), averaged over 4 slots</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="text-blue-400 mt-0.5 shrink-0">•</span>
-                <span><span className="text-white font-medium">WeatherAPI</span> — Daily forecast, <code className="text-blue-300 text-xs">daily_chance_of_rain</code> field</span>
+                <span className="text-primary mt-0.5 shrink-0">•</span>
+                <span><span className="text-foreground font-medium">WeatherAPI</span> — Daily forecast, <code className="text-primary text-xs">daily_chance_of_rain</code> field</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="text-blue-400 mt-0.5 shrink-0">•</span>
-                <span><span className="text-white font-medium">Consensus:</span> <code className="text-blue-300 text-xs">ConsensusAggregationByFields</code> on rain% — integer rounding ensures DON nodes agree</span>
+                <span className="text-primary mt-0.5 shrink-0">•</span>
+                <span><span className="text-foreground font-medium">Consensus:</span> <code className="text-primary text-xs">ConsensusAggregationByFields</code> on rain% — integer rounding ensures DON nodes agree</span>
               </li>
             </ul>
           </div>
 
-          <div className="bg-gray-900/50 rounded-xl border border-purple-500/20 p-5">
-            <h3 className="font-semibold text-purple-400 mb-4 flex items-center gap-2">
+          <div className="glass rounded-xl border border-accent/20 p-5">
+            <h3 className="font-semibold text-accent mb-4 flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
               </svg>
               On-Chain Actions
             </h3>
-            <ul className="space-y-3 text-sm text-gray-300">
+            <ul className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-start gap-2.5">
-                <span className="text-purple-400 mt-0.5 shrink-0">•</span>
-                <span><span className="text-white font-medium">Place Bet:</span> <code className="text-purple-300 text-xs">MarketAgent.placeBet()</code> via <code className="text-purple-300 text-xs">runtime.report()</code> → <code className="text-purple-300 text-xs">evmClient.writeReport()</code></span>
+                <span className="text-accent mt-0.5 shrink-0">•</span>
+                <span><span className="text-foreground font-medium">Place Bet:</span> <code className="text-accent text-xs">MarketAgent.placeBet()</code> via <code className="text-accent text-xs">runtime.report()</code> → <code className="text-accent text-xs">evmClient.writeReport()</code></span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="text-purple-400 mt-0.5 shrink-0">•</span>
-                <span><span className="text-white font-medium">Risk Caps:</span> 2% bankroll hard limit enforced on-chain, 1.5% used by workflow to stay safely below</span>
+                <span className="text-accent mt-0.5 shrink-0">•</span>
+                <span><span className="text-foreground font-medium">Risk Caps:</span> 2% bankroll hard limit enforced on-chain, 1.5% used by workflow to stay safely below</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="text-purple-400 mt-0.5 shrink-0">•</span>
-                <span><span className="text-white font-medium">Settlement:</span> CRE main workflow resolves markets; agent calls <code className="text-purple-300 text-xs">settleBet()</code> to claim payouts</span>
+                <span className="text-accent mt-0.5 shrink-0">•</span>
+                <span><span className="text-foreground font-medium">Settlement:</span> CRE main workflow resolves markets; agent calls <code className="text-accent text-xs">settleBet()</code> to claim payouts</span>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Code snippet teaser */}
-        <div className="rounded-xl bg-gray-950 border border-gray-800 p-4 overflow-x-auto">
-          <div className="text-[10px] text-gray-600 mb-2 uppercase tracking-wider">oracle-workflow/agent-main.ts</div>
-          <pre className="text-xs text-gray-400 leading-relaxed"><code>{`// CRE fetches forecasts from both APIs simultaneously
+        <div className="rounded-xl bg-background border border-border p-4 overflow-x-auto">
+          <div className="text-[10px] text-muted-foreground mb-2 uppercase tracking-wider">oracle-workflow/agent-main.ts</div>
+          <pre className="text-xs text-muted-foreground leading-relaxed"><code>{`// CRE fetches forecasts from both APIs simultaneously
 const owmResult  = fetchOWMForecast(sendRequest, lat, lng, config.openWeatherApiKey).result();
 const wapiResult = fetchWeatherAPIForecast(sendRequest, lat, lng, config.weatherApiKey).result();
 
@@ -155,22 +160,22 @@ const PIPELINE_STEPS = [
 
 function TradingPipeline() {
   return (
-    <section className="border-b border-gray-800/50 bg-gray-900/20">
+    <section className="border-b border-border/50 bg-secondary/10">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-        <h2 className="text-lg font-bold text-white mb-6">Trading Pipeline</h2>
+        <h2 className="text-lg font-bold mb-6">Trading Pipeline</h2>
         <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
           {PIPELINE_STEPS.map((step) => (
             <div key={step.num} className="relative">
-              <div className="bg-gradient-to-b from-gray-800/80 to-gray-900 rounded-xl p-4 border border-gray-700/50 h-full">
+              <div className="glass rounded-xl p-4 h-full">
                 <div className="text-2xl mb-2">{step.icon}</div>
-                <div className="text-[10px] text-gray-500 mb-1">Step {step.num}</div>
-                <div className="font-semibold text-sm text-white mb-1">{step.title}</div>
-                <div className="text-[10px] text-gray-400 leading-relaxed">{step.desc}</div>
+                <div className="text-[10px] text-muted-foreground mb-1">Step {step.num}</div>
+                <div className="font-semibold text-sm mb-1">{step.title}</div>
+                <div className="text-[10px] text-muted-foreground leading-relaxed">{step.desc}</div>
               </div>
               {step.num < 5 && (
                 <div className="hidden sm:flex absolute top-1/2 -right-2 z-10 w-4 items-center">
-                  <div className="w-full h-px bg-blue-500/50" />
-                  <div className="w-0 h-0 border-t-[3px] border-t-transparent border-b-[3px] border-b-transparent border-l-[4px] border-l-blue-500/50 shrink-0" />
+                  <div className="w-full h-px bg-primary/50" />
+                  <div className="w-0 h-0 border-t-[3px] border-t-transparent border-b-[3px] border-b-transparent border-l-[4px] border-l-primary/50 shrink-0" />
                 </div>
               )}
             </div>
@@ -222,7 +227,7 @@ export default function AgentPage() {
     : "—";
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-950 text-white">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
 
       <main className="flex-1">
@@ -233,21 +238,21 @@ export default function AgentPage() {
         />
 
         {/* Market context banner */}
-        <div className="border-b border-gray-800/50 bg-blue-500/5">
+        <div className="border-b border-border/50 bg-primary/5">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-5 flex items-start gap-3">
             <div className="text-2xl shrink-0">🎯</div>
             <div>
-              <h3 className="font-semibold text-white mb-1">How This Agent Works</h3>
-              <p className="text-sm text-gray-400">
+              <h3 className="font-semibold mb-1">How This Agent Works</h3>
+              <p className="text-sm text-muted-foreground">
                 This agent runs on the same{" "}
-                <Link href="/" className="text-blue-400 hover:underline">hyperlocal weather markets</Link>
+                <Link href="/" className="text-primary hover:underline">hyperlocal weather markets</Link>
                 {" "}shown on the Markets page. Every 6 hours it scans for markets expiring within 24h,
                 analyzes rain forecasts via Chainlink CRE, and places bets when the edge exceeds 20 percentage points.
               </p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                <span className="px-2.5 py-1 bg-gray-800 text-gray-400 rounded-lg border border-gray-700/50">Currently Watching: Markets #0, #1, #3</span>
-                <span className="px-2.5 py-1 bg-gray-800 text-gray-400 rounded-lg border border-gray-700/50">Active Positions: {Number(activeBets)}/5</span>
-                <span className="px-2.5 py-1 bg-gray-800 text-gray-400 rounded-lg border border-gray-700/50">Next run: ~6h</span>
+                <span className="px-2.5 py-1 bg-secondary text-muted-foreground rounded-lg border border-border/50">Currently Watching: Markets #0, #1, #3</span>
+                <span className="px-2.5 py-1 bg-secondary text-muted-foreground rounded-lg border border-border/50">Active Positions: {Number(activeBets)}/5</span>
+                <span className="px-2.5 py-1 bg-secondary text-muted-foreground rounded-lg border border-border/50">Next run: ~6h</span>
               </div>
             </div>
           </div>
@@ -259,13 +264,13 @@ export default function AgentPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
           {/* Status row */}
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-300">Live Stats</h2>
+            <h2 className="text-sm font-semibold text-muted-foreground">Live Stats</h2>
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold border ${
               IS_DEPLOYED
-                ? "bg-green-900/20 text-green-400 border-green-500/30"
-                : "bg-gray-800 text-gray-500 border-gray-700"
+                ? "bg-accent/10 text-accent border-accent/30"
+                : "bg-secondary text-muted-foreground border-border"
             }`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${IS_DEPLOYED ? "bg-green-400 animate-pulse" : "bg-gray-600"}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${IS_DEPLOYED ? "bg-accent animate-glow-pulse" : "bg-muted-foreground"}`} />
               {IS_DEPLOYED ? "Agent deployed" : "Not deployed"}
             </div>
           </div>
@@ -289,14 +294,14 @@ export default function AgentPage() {
           </div>
 
           {/* Recent bets */}
-          <div className="bg-gray-900/40 border border-gray-800/50 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-gray-300 mb-4">
-              Recent Bets {isDemo && <span className="text-[10px] text-gray-600 font-normal ml-1">(demo)</span>}
+          <div className="glass rounded-xl p-5">
+            <h3 className="text-sm font-semibold text-muted-foreground mb-4">
+              Recent Bets {isDemo && <span className="text-[10px] font-normal ml-1">(demo)</span>}
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-800 text-left text-[10px] text-gray-500 uppercase tracking-wider">
+                  <tr className="border-b border-border text-left text-[10px] text-muted-foreground uppercase tracking-wider">
                     <th className="pb-2.5 font-medium">Market</th>
                     <th className="pb-2.5 font-medium">Side</th>
                     <th className="pb-2.5 font-medium">Amount</th>
@@ -304,34 +309,34 @@ export default function AgentPage() {
                     <th className="pb-2.5 font-medium">PnL</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800/50">
+                <tbody className="divide-y divide-border/50">
                   {DEMO_BETS.map((bet) => (
                     <tr key={bet.id}>
                       <td className="py-3 pr-4">
-                        <Link href="/" className="text-gray-300 hover:text-blue-400 transition-colors text-xs">
+                        <Link href="/" className="text-muted-foreground hover:text-primary transition-colors text-xs">
                           #{bet.id}: {bet.question}
                         </Link>
                       </td>
                       <td className="py-3 pr-4">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                           bet.side === "YES"
-                            ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                            : "bg-red-500/10 text-red-400 border border-red-500/20"
+                            ? "bg-accent/10 text-accent border border-accent/20"
+                            : "bg-destructive/10 text-destructive border border-destructive/20"
                         }`}>
                           {bet.side}
                         </span>
                       </td>
-                      <td className="py-3 pr-4 text-xs text-gray-400">{bet.amount} USDC</td>
+                      <td className="py-3 pr-4 text-xs text-muted-foreground">{bet.amount} USDC</td>
                       <td className="py-3 pr-4">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                           bet.result === "Won"
-                            ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                            : "bg-red-500/10 text-red-400 border border-red-500/20"
+                            ? "bg-accent/10 text-accent border border-accent/20"
+                            : "bg-destructive/10 text-destructive border border-destructive/20"
                         }`}>
                           {bet.result}
                         </span>
                       </td>
-                      <td className={`py-3 text-xs font-semibold ${bet.pos ? "text-green-400" : "text-red-400"}`}>
+                      <td className={`py-3 text-xs font-semibold ${bet.pos ? "text-accent" : "text-destructive"}`}>
                         {bet.pnl} USDC
                       </td>
                     </tr>
@@ -343,34 +348,34 @@ export default function AgentPage() {
 
           {/* Config — only when deployed */}
           {IS_DEPLOYED && (agentOwner || workflowAddr) && (
-            <div className="bg-gray-900/40 border border-gray-800/50 rounded-xl p-5 space-y-3">
-              <h3 className="text-sm font-semibold text-gray-300">Agent Configuration</h3>
+            <div className="glass rounded-xl p-5 space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground">Agent Configuration</h3>
               <div className="grid sm:grid-cols-2 gap-3 text-xs">
                 <div>
-                  <div className="text-gray-500 mb-0.5">Contract</div>
-                  <div className="font-mono text-gray-300 break-all">{MARKET_AGENT_ADDRESS}</div>
+                  <div className="text-muted-foreground mb-0.5">Contract</div>
+                  <div className="font-mono break-all">{MARKET_AGENT_ADDRESS}</div>
                 </div>
                 {agentOwner && (
                   <div>
-                    <div className="text-gray-500 mb-0.5">Owner</div>
-                    <div className="font-mono text-gray-300">{shortAddr(agentOwner)}</div>
+                    <div className="text-muted-foreground mb-0.5">Owner</div>
+                    <div className="font-mono">{shortAddr(agentOwner)}</div>
                   </div>
                 )}
                 {workflowAddr && (
                   <div>
-                    <div className="text-gray-500 mb-0.5">CRE Workflow</div>
-                    <div className="font-mono text-gray-300">{shortAddr(workflowAddr)}</div>
+                    <div className="text-muted-foreground mb-0.5">CRE Workflow</div>
+                    <div className="font-mono">{shortAddr(workflowAddr)}</div>
                   </div>
                 )}
                 <div>
-                  <div className="text-gray-500 mb-0.5">Schedule</div>
-                  <div className="text-gray-300">Every 6 hours</div>
+                  <div className="text-muted-foreground mb-0.5">Schedule</div>
+                  <div>Every 6 hours</div>
                 </div>
               </div>
             </div>
           )}
 
-          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
