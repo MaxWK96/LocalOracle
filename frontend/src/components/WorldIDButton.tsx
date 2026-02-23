@@ -24,13 +24,22 @@ export default function WorldIDButton({ walletAddress, onVerified }: WorldIDButt
   // IDKit v2: handleVerify runs INSIDE the widget while it's still open.
   // Throwing here shows an error state inside the widget (not outside).
   const handleVerify = useCallback(async (result: ISuccessResult) => {
+    console.log("IDKit handleVerify called", {
+      app_id: WORLDID_APP_ID,
+      action: WORLDID_ACTION,
+      walletAddress,
+      verification_level: result.verification_level,
+      nullifier_hash: result.nullifier_hash,
+    });
     const data = await verifyWorldIDProof(result, walletAddress);
+    console.log("IDKit handleVerify backend response", data);
     if (!data.success) throw new Error("Server rejected the proof");
     verifiedHashRef.current = data.nullifier_hash;
   }, [walletAddress]);
 
   // IDKit v2: onSuccess fires after handleVerify succeeds and the widget closes.
   const handleSuccess = useCallback(() => {
+    console.log("IDKit onSuccess fired", { hash: verifiedHashRef.current });
     const hash = verifiedHashRef.current;
     if (hash) {
       setIsVerified(true);
@@ -54,6 +63,12 @@ export default function WorldIDButton({ walletAddress, onVerified }: WorldIDButt
       </div>
     );
   }
+
+  console.log("[WorldIDButton] rendering widget", {
+    app_id: WORLDID_APP_ID,
+    action: WORLDID_ACTION,
+    walletAddress,
+  });
 
   return (
     <div className="flex flex-col items-end gap-1">
