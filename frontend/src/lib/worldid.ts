@@ -1,5 +1,5 @@
 export const WORLDID_APP_ID = process.env.NEXT_PUBLIC_WORLDID_APP_ID || "";
-export const WORLDID_ACTION = "place-bet";
+export const WORLDID_ACTION = "localoracleverify";
 
 export async function verifyWorldIDProof(proof: {
   merkle_root: string;

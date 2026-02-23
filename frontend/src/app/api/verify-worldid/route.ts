@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
           nullifier_hash,
           proof,
           verification_level,
-          action: "place-bet",
+          action: "localoracleverify",
           signal,
         }),
       }
