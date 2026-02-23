@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useReadContract } from "thirdweb/react";
 import Header from "@/components/Header";
@@ -43,6 +44,114 @@ const DEMO_BETS = [
   { id: 1, question: "Rain in Gothenburg tomorrow", side: "NO",  amount: "1.80", result: "Won",  pnl: "+0.90", pos: true  },
   { id: 2, question: "Rain in Malmö tomorrow",      side: "YES", amount: "2.10", result: "Lost", pnl: "−2.10", pos: false },
 ];
+
+// ─── Live Activity Log ───────────────────────────────────────────────────────
+
+type LogLevel = "bet" | "scan" | "settle" | "skip";
+
+interface LogEntry {
+  id: number;
+  time: string;
+  level: LogLevel;
+  message: string;
+}
+
+const LOG_POOL: Omit<LogEntry, "id" | "time">[] = [
+  { level: "bet",    message: "Agent placed YES (Strandvägen flooding) based on precipitation forecast 89%" },
+  { level: "scan",   message: "Scanning 8 active markets — 3 expire within 24h" },
+  { level: "bet",    message: "Agent placed NO (Gothenburg snow Sunday) — OWM 14%, WeatherAPI 11%, edge −36 pp" },
+  { level: "settle", message: "Settled market #0 (Strandvägen flooding) → YES confirmed — claimed +$1.20" },
+  { level: "skip",   message: "Skipped market #5 (Warsaw Marathon) — insufficient edge (8 pp < 20 pp threshold)" },
+  { level: "bet",    message: "Agent placed YES (Vistula flood warning) — IMGW precipitation 76%, WeatherAPI 71%" },
+  { level: "scan",   message: "Fetching forecasts via Chainlink CRE — OWM + WeatherAPI for 3 markets" },
+  { level: "settle", message: "Settled market #3 (Södermalm snow) → NO confirmed — claimed +$0.90" },
+  { level: "skip",   message: "Skipped market #2 (Djurgården derby) — Sports markets use ESPN/SportsRadar, not in this run" },
+  { level: "bet",    message: "Agent placed YES (Gothenburg Half Marathon cancel) — Met.no storm warning active" },
+  { level: "scan",   message: "DON consensus achieved — 4/5 nodes agree on Stockholm precipitation (67%)" },
+  { level: "skip",   message: "Skipped market #6 — risk cap reached (active bets: 5/5)" },
+  { level: "settle", message: "Settled market #1 (T-Centralen metro) → NO confirmed — claimed +$0.45" },
+  { level: "bet",    message: "Agent placed NO (Warsaw Marathon closure) — Warsaw city API shows no road closures" },
+  { level: "scan",   message: "Next scheduled run in 6h — bankroll $101.20 USDC" },
+];
+
+function timeLabel(): string {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+}
+
+const LEVEL_STYLE: Record<LogLevel, string> = {
+  bet:    "text-accent border-accent/30 bg-accent/10",
+  scan:   "text-primary border-primary/30 bg-primary/10",
+  settle: "text-emerald-400 border-emerald-400/30 bg-emerald-400/10",
+  skip:   "text-muted-foreground border-border bg-secondary/40",
+};
+
+const LEVEL_LABEL: Record<LogLevel, string> = {
+  bet:    "BET",
+  scan:   "SCAN",
+  settle: "SETTLE",
+  skip:   "SKIP",
+};
+
+function LiveActivityLog() {
+  const [entries, setEntries] = useState<LogEntry[]>(() => {
+    // Pre-populate with last 5 simulated entries (working backwards in time)
+    const now = new Date();
+    return Array.from({ length: 5 }, (_, i) => {
+      const t = new Date(now.getTime() - (4 - i) * 6 * 60 * 1000);
+      const poolEntry = LOG_POOL[(LOG_POOL.length - 5 + i) % LOG_POOL.length];
+      return {
+        id: i,
+        time: `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}`,
+        ...poolEntry,
+      };
+    });
+  });
+
+  const [nextIdx, setNextIdx] = useState(0);
+  const [pulse, setPulse] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const poolEntry = LOG_POOL[nextIdx % LOG_POOL.length];
+      const newEntry: LogEntry = { id: Date.now(), time: timeLabel(), ...poolEntry };
+      setEntries((prev) => [newEntry, ...prev].slice(0, 12));
+      setNextIdx((n) => n + 1);
+      setPulse(true);
+      setTimeout(() => setPulse(false), 600);
+    }, 30_000);
+    return () => clearInterval(interval);
+  }, [nextIdx]);
+
+  return (
+    <div className="glass rounded-xl p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full bg-accent ${pulse ? "animate-ping" : "animate-glow-pulse"}`} />
+          Live Activity Log
+          <span className="text-[10px] font-normal">— updates every 30s</span>
+        </h3>
+        <span className="text-[10px] text-muted-foreground px-2 py-0.5 bg-secondary rounded-full border border-border">
+          simulated
+        </span>
+      </div>
+      <div className="space-y-2 max-h-72 overflow-y-auto pr-1 scrollbar-thin">
+        {entries.map((entry, i) => (
+          <div
+            key={entry.id}
+            className={`flex items-start gap-3 text-xs transition-opacity ${i === 0 && pulse ? "animate-pulse" : ""}`}
+          >
+            <span className="font-mono text-muted-foreground shrink-0 w-11">{entry.time}</span>
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border shrink-0 mt-px ${LEVEL_STYLE[entry.level]}`}>
+              {LEVEL_LABEL[entry.level]}
+            </span>
+            <span className="text-muted-foreground leading-relaxed">{entry.message}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // ─── StatCard ────────────────────────────────────────────────────────────────
 
@@ -345,6 +454,9 @@ export default function AgentPage() {
               </table>
             </div>
           </div>
+
+          {/* Live activity log */}
+          <LiveActivityLog />
 
           {/* Config — only when deployed */}
           {IS_DEPLOYED && (agentOwner || workflowAddr) && (

@@ -92,7 +92,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-6 py-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {[
-              { label: "Markets Active", value: "4", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
+              { label: "Markets Active", value: "8", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
               { label: "Total Volume", value: "$1,250", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
               { label: "Markets Resolved", value: "2", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
               { label: "Powered By", value: "CRE + World ID", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
@@ -130,6 +130,100 @@ export default function Home() {
                 game; outcomes are automated and verifiable on-chain.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Global Applicability ── */}
+      <section className="border-b border-border/50 bg-secondary/5">
+        <div className="max-w-5xl mx-auto px-6 py-14 md:py-18">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-primary text-xs font-medium mb-4">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+              </svg>
+              Global Applicability
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">Hyperlocal Markets, Worldwide</h2>
+            <p className="text-muted-foreground text-sm max-w-xl mx-auto">
+              LocalOracle&rsquo;s geo-fenced, sybil-resistant model applies wherever local knowledge beats global averages.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              {
+                city: "New York City",
+                flag: "🇺🇸",
+                market: "Will the L train be delayed >10 min at Bedford Ave before 9am?",
+                oracle: "MTA Real-Time API + Google Transit API",
+                category: "Transit",
+                color: "border-blue-500/30 bg-blue-500/5",
+                accent: "text-blue-400",
+                tagColor: "bg-blue-500/10 border-blue-500/20 text-blue-400",
+                why: "Local commuters have skin in the game — they know the L train better than any aggregate feed.",
+              },
+              {
+                city: "London",
+                flag: "🇬🇧",
+                market: "Will the Thames Barrier close in Greenwich this week due to tidal surge?",
+                oracle: "UK EA Flood API + OpenWeatherMap",
+                category: "Weather",
+                color: "border-cyan-500/30 bg-cyan-500/5",
+                accent: "text-cyan-400",
+                tagColor: "bg-cyan-500/10 border-cyan-500/20 text-cyan-400",
+                why: "Riverside residents in a 2km geo-fence trade on lived experience of tidal patterns.",
+              },
+              {
+                city: "Los Angeles",
+                flag: "🇺🇸",
+                market: "Will Griffith Park issue a Level 3 evacuation order this weekend?",
+                oracle: "Cal Fire API + USGS Wildfire Perimeter Feed",
+                category: "Community",
+                color: "border-orange-500/30 bg-orange-500/5",
+                accent: "text-orange-400",
+                tagColor: "bg-orange-500/10 border-orange-500/20 text-orange-400",
+                why: "Hillside residents within 5km bet on local fire-risk knowledge vs. city-wide forecasts.",
+              },
+              {
+                city: "Tokyo",
+                flag: "🇯🇵",
+                market: "Will JMA issue a seismic intensity ≥5 alert for Shinjuku this month?",
+                oracle: "JMA Earthquake API + USGS Global Feed",
+                category: "Community",
+                color: "border-red-500/30 bg-red-500/5",
+                accent: "text-red-400",
+                tagColor: "bg-red-500/10 border-red-500/20 text-red-400",
+                why: "Neighborhood-level quake-preparedness signals create genuine hyperlocal risk markets.",
+              },
+            ].map((ex) => (
+              <div
+                key={ex.city}
+                className={`rounded-2xl border ${ex.color} p-5 flex flex-col gap-3 hover:-translate-y-1 transition-transform`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{ex.flag}</span>
+                  <div>
+                    <div className="font-bold text-sm">{ex.city}</div>
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded border font-semibold ${ex.tagColor}`}>
+                      {ex.category}
+                    </span>
+                  </div>
+                </div>
+                <p className={`text-xs font-medium leading-snug ${ex.accent}`}>
+                  &ldquo;{ex.market}&rdquo;
+                </p>
+                <div className="text-[10px] text-muted-foreground space-y-1">
+                  <div className="flex items-start gap-1.5">
+                    <span className="shrink-0 mt-0.5">⚡</span>
+                    <span><span className="text-foreground/70 font-medium">Oracle:</span> {ex.oracle}</span>
+                  </div>
+                  <div className="flex items-start gap-1.5">
+                    <span className="shrink-0 mt-0.5">🎯</span>
+                    <span>{ex.why}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
