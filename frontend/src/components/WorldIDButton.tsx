@@ -38,6 +38,12 @@ export default function WorldIDButton({ walletAddress, onVerified }: WorldIDButt
     }
   }, [onVerified]);
 
+  // Demo bypass — lets judges reach the bet flow without a World ID scan.
+  const handleDemoSkip = useCallback(() => {
+    setIsVerified(true);
+    onVerified("demo-nullifier-0x000");
+  }, [onVerified]);
+
   if (isVerified) {
     return (
       <div className="flex items-center gap-2 px-4 py-2 bg-green-900/30 border border-green-500/50 rounded-lg text-green-400 text-sm">
@@ -50,29 +56,40 @@ export default function WorldIDButton({ walletAddress, onVerified }: WorldIDButt
   }
 
   return (
-    <IDKitWidget
-      app_id={WORLDID_APP_ID as `app_${string}`}
-      action={WORLDID_ACTION}
-      signal={walletAddress}
-      handleVerify={handleVerify}
-      onSuccess={handleSuccess}
-      // Device level works in World App without requiring Orb biometric scan
-      verification_level={VerificationLevel.Device}
-      action_description="Verify you are a unique human to participate in LocalOracle prediction markets"
-    >
-      {({ open }) => (
+    <div className="flex flex-col items-end gap-1">
+      <IDKitWidget
+        app_id={WORLDID_APP_ID as `app_${string}`}
+        action={WORLDID_ACTION}
+        signal={walletAddress}
+        handleVerify={handleVerify}
+        onSuccess={handleSuccess}
+        // Device level: works in World App without requiring Orb biometric scan
+        verification_level={VerificationLevel.Device}
+        action_description="Verify you are a unique human to participate in LocalOracle prediction markets"
+      >
+        {({ open }) => (
+          <button
+            onClick={open}
+            disabled={!walletAddress}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+              <circle cx="12" cy="12" r="4" fill="currentColor" />
+            </svg>
+            Verify with World ID
+          </button>
+        )}
+      </IDKitWidget>
+      {/* Demo bypass — shown only when wallet is connected */}
+      {walletAddress && (
         <button
-          onClick={open}
-          disabled={!walletAddress}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={handleDemoSkip}
+          className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground transition-colors underline"
         >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-            <circle cx="12" cy="12" r="4" fill="currentColor" />
-          </svg>
-          Verify with World ID
+          skip (demo mode)
         </button>
       )}
-    </IDKitWidget>
+    </div>
   );
 }

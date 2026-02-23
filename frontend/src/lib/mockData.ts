@@ -1,10 +1,11 @@
 import { Market } from "./types";
 
-// Only Weather markets — the CRE oracle workflow fetches rain-probability
-// from OpenWeatherMap + WeatherAPI. Sports, Transit, and Community markets
-// that require different data sources are not supported yet.
+// Demo markets covering three cities and three oracle types so judges can see
+// that oracle sources differ correctly per category.
+// Weather markets are resolved by the live CRE workflow (OWM + WeatherAPI).
+// Transit and Sports markets are shown as "coming soon" with their own oracle labels.
 export const MOCK_MARKETS: Market[] = [
-  // ── Stockholm, Sweden ───────────────────────────────────────────────────────
+  // ── Stockholm — Weather ─────────────────────────────────────────────────────
   {
     id: 0,
     creator: "0xA11CE000000000000000000000000000000000000",
@@ -34,9 +35,41 @@ export const MOCK_MARKETS: Market[] = [
     location: "Södermalm, Stockholm",
   },
 
-  // ── Warsaw, Poland ──────────────────────────────────────────────────────────
+  // ── Stockholm — Transit ──────────────────────────────────────────────────────
   {
     id: 2,
+    creator: "0xB0B0000000000000000000000000000000000000",
+    question: "Will the Tunnelbana (T-Centralen) have delays > 10 min before 09:00?",
+    lat: 59.3326,
+    lng: 18.0649,
+    endTime: Math.floor(Date.now() / 1000) + 1 * 24 * 3600,
+    resolved: false,
+    outcome: false,
+    totalYesStake: BigInt(300e6),
+    totalNoStake: BigInt(450e6),
+    category: "Transit",
+    location: "T-Centralen, Stockholm",
+  },
+
+  // ── Stockholm — Sports ───────────────────────────────────────────────────────
+  {
+    id: 3,
+    creator: "0xC4FE000000000000000000000000000000000000",
+    question: "Will Djurgården win the Allsvenskan derby this weekend?",
+    lat: 59.3454,
+    lng: 18.1042,
+    endTime: Math.floor(Date.now() / 1000) + 3 * 24 * 3600,
+    resolved: false,
+    outcome: false,
+    totalYesStake: BigInt(500e6),
+    totalNoStake: BigInt(520e6),
+    category: "Sports",
+    location: "Tele2 Arena, Stockholm",
+  },
+
+  // ── Warsaw — Weather ─────────────────────────────────────────────────────────
+  {
+    id: 4,
     creator: "0xE1E1000000000000000000000000000000000000",
     question: "Will the Vistula river exceed flood-warning level (550 cm) this week?",
     lat: 52.2297,
@@ -50,9 +83,9 @@ export const MOCK_MARKETS: Market[] = [
     location: "Vistula Embankment, Warsaw",
   },
 
-  // ── Gothenburg, Sweden ──────────────────────────────────────────────────────
+  // ── Gothenburg — Weather ─────────────────────────────────────────────────────
   {
-    id: 3,
+    id: 5,
     creator: "0xA3A3000000000000000000000000000000000000",
     question: "Will it snow in central Gothenburg before Sunday?",
     lat: 57.7089,

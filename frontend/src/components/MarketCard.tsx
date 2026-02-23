@@ -183,9 +183,9 @@ export default function MarketCard({ market, onSelect, isSelected }: MarketCardP
         <span>{market.resolved ? "Resolved by:" : "Oracle:"}</span>
         <span className="text-foreground/70 font-medium">
           {market.category === "Sports"
-            ? "ESPN API + SportsRadar"
+            ? "football-data.org"
             : market.category === "Transit"
-            ? "SL API + Google Transit API"
+            ? "Trafiklab API"
             : "OpenWeatherMap + WeatherAPI"}
         </span>
         {oracleParams && oracleParams.consensusThreshold > 0 && (
