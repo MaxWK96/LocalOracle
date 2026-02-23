@@ -1,11 +1,21 @@
 "use client";
 
-import { ThirdwebProvider as TWProvider } from "thirdweb/react";
+import { WagmiProvider } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { wagmiConfig } from "@/lib/wagmi";
 
-export default function ThirdwebProvider({
+const queryClient = new QueryClient();
+
+export default function Web3Provider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <TWProvider>{children}</TWProvider>;
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
 }

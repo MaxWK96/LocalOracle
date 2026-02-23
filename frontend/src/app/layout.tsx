@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import ThirdwebProvider from "@/components/providers/ThirdwebProvider";
+import Web3Provider from "@/components/providers/ThirdwebProvider";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -30,9 +30,9 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <ThirdwebProvider>
+        <Web3Provider>
           {children}
-        </ThirdwebProvider>
+        </Web3Provider>
       </body>
     </html>
   );

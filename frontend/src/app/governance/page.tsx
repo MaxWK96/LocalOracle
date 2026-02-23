@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useActiveAccount, useReadContract, useSendTransaction } from "thirdweb/react";
-import { prepareContractCall } from "thirdweb";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import Header from "@/components/Header";
 import { PageHeader } from "@/components/PageHeader";
 import { Footer } from "@/components/Footer";
 import {
-  governanceTokenContract,
-  parameterRegistryContract,
+  GOVERNANCE_TOKEN_ADDRESS,
+  GOVERNANCE_TOKEN_ABI,
   PARAMETER_REGISTRY_ADDRESS,
+  PARAMETER_REGISTRY_ABI,
 } from "@/lib/contracts";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -148,37 +148,49 @@ function DemoProposalCard({ p }: { p: (typeof DEMO_PROPOSALS)[number] }) {
 // ─── ProposalRow (live) ───────────────────────────────────────────────────────
 
 function ProposalRow({ proposalId, logBalance }: { proposalId: number; logBalance: bigint }) {
-  const { mutate: sendTx, isPending } = useSendTransaction();
+  const { writeContract, isPending } = useWriteContract();
   const [localVoted, setLocalVoted] = useState<boolean | null>(null);
 
   const { data: proposal, isLoading } = useReadContract({
-    contract: parameterRegistryContract,
-    method: "getProposal",
-    params: [BigInt(proposalId)],
+    address: PARAMETER_REGISTRY_ADDRESS,
+    abi: PARAMETER_REGISTRY_ABI,
+    functionName: "getProposal",
+    args: [BigInt(proposalId)],
   });
 
   if (isLoading) return <div className="glass p-4 rounded-xl animate-pulse h-32" />;
-  if (!proposal || proposal.proposer === "0x0000000000000000000000000000000000000000") return null;
+  if (!proposal || (proposal as { proposer: string }).proposer === "0x0000000000000000000000000000000000000000") return null;
+
+  const p = proposal as {
+    proposer: string;
+    forVotes: bigint;
+    againstVotes: bigint;
+    deadline: bigint;
+    executed: boolean;
+    targetMarketId: bigint;
+    proposed: { dataSources: string[]; consensusThreshold: number; settlementFee: number; aiProvider: string };
+  };
 
   const nowBig = BigInt(Math.floor(Date.now() / 1000));
-  const isActive = proposal.deadline > nowBig && !proposal.executed;
-  const isEnded  = proposal.deadline <= nowBig && !proposal.executed;
-  const totalVotes = proposal.forVotes + proposal.againstVotes;
-  const forPct = totalVotes > 0n ? Number((proposal.forVotes * 100n) / totalVotes) : 50;
+  const isActive = p.deadline > nowBig && !p.executed;
+  const isEnded  = p.deadline <= nowBig && !p.executed;
+  const totalVotes = p.forVotes + p.againstVotes;
+  const forPct = totalVotes > 0n ? Number((p.forVotes * 100n) / totalVotes) : 50;
   const canVote = isActive && logBalance > 0n && localVoted === null;
 
-  const statusColor = proposal.executed ? "bg-accent/20 text-accent border-accent/30"
+  const statusColor = p.executed ? "bg-accent/20 text-accent border-accent/30"
     : isActive ? "bg-primary/20 text-primary border-primary/30"
     : "bg-secondary text-muted-foreground border-border";
-  const statusLabel = proposal.executed ? "Executed" : isActive ? "Active" : "Ended";
+  const statusLabel = p.executed ? "Executed" : isActive ? "Active" : "Ended";
 
   function handleVote(support: boolean) {
-    const tx = prepareContractCall({ contract: parameterRegistryContract, method: "vote", params: [BigInt(proposalId), support] });
-    sendTx(tx, { onSuccess: () => setLocalVoted(support) });
+    writeContract(
+      { address: PARAMETER_REGISTRY_ADDRESS, abi: PARAMETER_REGISTRY_ABI, functionName: "vote", args: [BigInt(proposalId), support] },
+      { onSuccess: () => setLocalVoted(support) }
+    );
   }
   function handleExecute() {
-    const tx = prepareContractCall({ contract: parameterRegistryContract, method: "executeProposal", params: [BigInt(proposalId)] });
-    sendTx(tx);
+    writeContract({ address: PARAMETER_REGISTRY_ADDRESS, abi: PARAMETER_REGISTRY_ABI, functionName: "executeProposal", args: [BigInt(proposalId)] });
   }
 
   return (
@@ -187,17 +199,17 @@ function ProposalRow({ proposalId, logBalance }: { proposalId: number; logBalanc
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[10px] font-bold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">#{proposalId}</span>
           <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border ${statusColor}`}>{statusLabel}</span>
-          <span className="text-[10px] text-muted-foreground">{proposal.targetMarketId === 0n ? "Global parameters" : `Market #${proposal.targetMarketId}`}</span>
+          <span className="text-[10px] text-muted-foreground">{p.targetMarketId === 0n ? "Global parameters" : `Market #${p.targetMarketId}`}</span>
         </div>
-        <span className="text-[10px] text-muted-foreground shrink-0">{timeLeft(proposal.deadline)}</span>
+        <span className="text-[10px] text-muted-foreground shrink-0">{timeLeft(p.deadline)}</span>
       </div>
-      <div className="text-xs text-muted-foreground">Proposer: <span className="font-mono text-foreground">{shortAddr(proposal.proposer)}</span></div>
+      <div className="text-xs text-muted-foreground">Proposer: <span className="font-mono text-foreground">{shortAddr(p.proposer)}</span></div>
       <div className="grid grid-cols-2 gap-2 text-xs">
         {[
-          { label: "Data Sources",   value: proposal.proposed.dataSources.join(", ") || "—" },
-          { label: "Consensus",      value: `${proposal.proposed.consensusThreshold}%`       },
-          { label: "Settlement Fee", value: `${proposal.proposed.settlementFee} bps`          },
-          { label: "AI Provider",    value: proposal.proposed.aiProvider || "—"              },
+          { label: "Data Sources",   value: p.proposed.dataSources.join(", ") || "—" },
+          { label: "Consensus",      value: `${p.proposed.consensusThreshold}%`       },
+          { label: "Settlement Fee", value: `${p.proposed.settlementFee} bps`          },
+          { label: "AI Provider",    value: p.proposed.aiProvider || "—"              },
         ].map(({ label, value }) => (
           <div key={label} className="bg-secondary/50 rounded-lg p-2.5 space-y-0.5">
             <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</div>
@@ -207,8 +219,8 @@ function ProposalRow({ proposalId, logBalance }: { proposalId: number; logBalanc
       </div>
       <div className="space-y-1">
         <div className="flex justify-between text-[10px]">
-          <span className="text-accent">{formatLOG(proposal.forVotes)} FOR</span>
-          <span className="text-destructive">{formatLOG(proposal.againstVotes)} AGAINST</span>
+          <span className="text-accent">{formatLOG(p.forVotes)} FOR</span>
+          <span className="text-destructive">{formatLOG(p.againstVotes)} AGAINST</span>
         </div>
         <div className="h-2 bg-secondary rounded-full overflow-hidden flex">
           <div className="h-full bg-accent transition-all" style={{ width: `${forPct}%` }} />
@@ -248,7 +260,7 @@ function CreateProposalModal({ onClose, logBalance }: { onClose: () => void; log
   const [aiProvider, setAiProvider]     = useState("claude-opus-4-6");
   const [targetMarketId, setTargetMkt]  = useState("0");
   const [error, setError]               = useState("");
-  const { mutate: sendTx, isPending }   = useSendTransaction();
+  const { writeContract, isPending }    = useWriteContract();
 
   function handleSubmit() {
     setError("");
@@ -259,11 +271,15 @@ function CreateProposalModal({ onClose, logBalance }: { onClose: () => void; log
     if (isNaN(feeNum) || feeNum < 0) { setError("Settlement fee must be non-negative."); return; }
     const parsedSources = sources.split(",").map((s) => s.trim()).filter(Boolean);
     if (parsedSources.length === 0) { setError("At least one data source is required."); return; }
-    const tx = prepareContractCall({
-      contract: parameterRegistryContract, method: "propose",
-      params: [parsedSources, thresholdNum, feeNum, aiProvider, BigInt(targetMarketId || "0")],
-    });
-    sendTx(tx, { onSuccess: () => onClose() });
+    writeContract(
+      {
+        address: PARAMETER_REGISTRY_ADDRESS,
+        abi: PARAMETER_REGISTRY_ABI,
+        functionName: "propose",
+        args: [parsedSources, thresholdNum, feeNum, aiProvider, BigInt(targetMarketId || "0")],
+      },
+      { onSuccess: () => onClose() }
+    );
   }
 
   return (
@@ -332,25 +348,27 @@ const GOVERNABLE_PARAMS = [
 ];
 
 export default function GovernancePage() {
-  const account = useActiveAccount();
+  const { address } = useAccount();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const { data: proposalCount } = useReadContract({
-    contract: parameterRegistryContract,
-    method: "proposalCount",
-    params: [],
-    queryOptions: { enabled: IS_DEPLOYED },
+    address: PARAMETER_REGISTRY_ADDRESS,
+    abi: PARAMETER_REGISTRY_ABI,
+    functionName: "proposalCount",
+    args: [],
+    query: { enabled: IS_DEPLOYED },
   });
 
   const { data: logBalance } = useReadContract({
-    contract: governanceTokenContract,
-    method: "balanceOf",
-    params: account ? [account.address] : ["0x0000000000000000000000000000000000000000"],
-    queryOptions: { enabled: !!account },
+    address: GOVERNANCE_TOKEN_ADDRESS,
+    abi: GOVERNANCE_TOKEN_ABI,
+    functionName: "balanceOf",
+    args: [address ?? "0x0000000000000000000000000000000000000000"],
+    query: { enabled: !!address },
   });
 
-  const totalProposals = Number(proposalCount ?? 0n);
-  const userLogBalance = logBalance ?? 0n;
+  const totalProposals = Number((proposalCount as bigint | undefined) ?? 0n);
+  const userLogBalance = (logBalance as bigint | undefined) ?? 0n;
   const proposalIds    = Array.from({ length: totalProposals }, (_, i) => i + 1);
   const showDemo       = totalProposals === 0;
 
@@ -405,13 +423,13 @@ export default function GovernancePage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {account && userLogBalance > 0n && (
+              {address && userLogBalance > 0n && (
                 <div className="text-right">
                   <div className="text-[10px] text-muted-foreground">Your LOG</div>
                   <div className="text-sm font-bold text-primary">{formatLOG(userLogBalance)}</div>
                 </div>
               )}
-              <button onClick={() => setShowCreateModal(true)} disabled={!account}
+              <button onClick={() => setShowCreateModal(true)} disabled={!address}
                 className="px-4 py-2 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                 + Propose
               </button>

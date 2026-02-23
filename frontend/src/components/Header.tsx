@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import ConnectWallet from "./ConnectWallet";
 import WorldIDButton from "./WorldIDButton";
 import { Logo } from "./Logo";
-import { useActiveAccount, useReadContract } from "thirdweb/react";
-import { governanceTokenContract, GOVERNANCE_TOKEN_ADDRESS } from "@/lib/contracts";
+import { useAccount, useReadContract } from "wagmi";
+import { GOVERNANCE_TOKEN_ADDRESS, GOVERNANCE_TOKEN_ABI } from "@/lib/contracts";
 
 interface HeaderProps {
   onVerified?: (nullifierHash: string) => void;
@@ -28,14 +28,15 @@ function formatLOGShort(raw: bigint): string {
 }
 
 export default function Header({ onVerified, isVerified = false }: HeaderProps) {
-  const account = useActiveAccount();
+  const { address } = useAccount();
   const pathname = usePathname();
 
   const { data: logBalance } = useReadContract({
-    contract: governanceTokenContract,
-    method: "balanceOf",
-    params: account ? [account.address] : ["0x0000000000000000000000000000000000000000"],
-    queryOptions: { enabled: !!account && LOG_DEPLOYED },
+    address: GOVERNANCE_TOKEN_ADDRESS,
+    abi: GOVERNANCE_TOKEN_ABI,
+    functionName: "balanceOf",
+    args: [address ?? "0x0000000000000000000000000000000000000000"],
+    query: { enabled: !!address && LOG_DEPLOYED },
   });
 
   return (
@@ -75,15 +76,15 @@ export default function Header({ onVerified, isVerified = false }: HeaderProps) 
           </span>
 
           {/* LOG balance */}
-          {account && LOG_DEPLOYED && logBalance !== undefined && (
+          {address && LOG_DEPLOYED && logBalance !== undefined && (
             <span className="hidden sm:inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-accent/10 text-accent border border-accent/20 font-semibold">
               {formatLOGShort(logBalance)} LOG
             </span>
           )}
 
           {/* WorldID — only on pages that supply onVerified */}
-          {account && onVerified && !isVerified && (
-            <WorldIDButton walletAddress={account.address} onVerified={onVerified} />
+          {address && onVerified && !isVerified && (
+            <WorldIDButton walletAddress={address} onVerified={onVerified} />
           )}
           {isVerified && (
             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-accent/10 border border-accent/20 rounded-full text-accent text-[10px] font-medium">

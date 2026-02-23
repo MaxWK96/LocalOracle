@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useReadContract } from "thirdweb/react";
+import { useReadContract } from "wagmi";
 import { Market, MarketCategory } from "@/lib/types";
-import { parameterRegistryContract, PARAMETER_REGISTRY_ADDRESS } from "@/lib/contracts";
+import { PARAMETER_REGISTRY_ADDRESS, PARAMETER_REGISTRY_ABI } from "@/lib/contracts";
 
 interface MarketCardProps {
   market: Market;
@@ -50,10 +50,11 @@ export default function MarketCard({ market, onSelect, isSelected }: MarketCardP
 
   // Fetch active oracle params for this market (falls back to global if no market-specific params)
   const { data: oracleParams } = useReadContract({
-    contract: parameterRegistryContract,
-    method: "getActiveParameters",
-    params: [BigInt(market.id)],
-    queryOptions: { enabled: REGISTRY_DEPLOYED },
+    address: PARAMETER_REGISTRY_ADDRESS,
+    abi: PARAMETER_REGISTRY_ABI,
+    functionName: "getActiveParameters",
+    args: [BigInt(market.id)],
+    query: { enabled: REGISTRY_DEPLOYED },
   });
 
   const totalPool = market.totalYesStake + market.totalNoStake;

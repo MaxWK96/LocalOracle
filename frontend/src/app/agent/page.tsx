@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useReadContract } from "thirdweb/react";
+import { useReadContract } from "wagmi";
 import Header from "@/components/Header";
 import { PageHeader } from "@/components/PageHeader";
 import { Footer } from "@/components/Footer";
-import { marketAgentContract, MARKET_AGENT_ADDRESS } from "@/lib/contracts";
+import { MARKET_AGENT_ADDRESS, MARKET_AGENT_ABI } from "@/lib/contracts";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -301,24 +301,27 @@ const IS_DEPLOYED = MARKET_AGENT_ADDRESS !== "0x00000000000000000000000000000000
 
 export default function AgentPage() {
   const { data: stats } = useReadContract({
-    contract: marketAgentContract,
-    method: "getStats",
-    params: [],
-    queryOptions: { enabled: IS_DEPLOYED },
+    address: MARKET_AGENT_ADDRESS,
+    abi: MARKET_AGENT_ABI,
+    functionName: "getStats",
+    args: [],
+    query: { enabled: IS_DEPLOYED },
   });
 
   const { data: agentOwner } = useReadContract({
-    contract: marketAgentContract,
-    method: "owner",
-    params: [],
-    queryOptions: { enabled: IS_DEPLOYED },
+    address: MARKET_AGENT_ADDRESS,
+    abi: MARKET_AGENT_ABI,
+    functionName: "owner",
+    args: [],
+    query: { enabled: IS_DEPLOYED },
   });
 
   const { data: workflowAddr } = useReadContract({
-    contract: marketAgentContract,
-    method: "coreWorkflow",
-    params: [],
-    queryOptions: { enabled: IS_DEPLOYED },
+    address: MARKET_AGENT_ADDRESS,
+    abi: MARKET_AGENT_ABI,
+    functionName: "coreWorkflow",
+    args: [],
+    query: { enabled: IS_DEPLOYED },
   });
 
   // Use real stats when available, fall back to demo data so page is never empty
