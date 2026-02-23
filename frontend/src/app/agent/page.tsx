@@ -335,6 +335,26 @@ export default function AgentPage() {
     ? `${((Number(wins) / Number(totalBets)) * 100).toFixed(1)}%`
     : "—";
 
+  // ── Countdown to next 6-hour CRE run (anchored to UTC 00/06/12/18) ─────────
+  const [nextRunStr, setNextRunStr] = useState("");
+
+  useEffect(() => {
+    function computeNextRun(): string {
+      const SIX_HOURS = 6 * 3600;
+      const nowSec = Math.floor(Date.now() / 1000);
+      let secsLeft = SIX_HOURS - (nowSec % SIX_HOURS);
+      if (secsLeft === 0) secsLeft = SIX_HOURS;
+      const h = Math.floor(secsLeft / 3600);
+      const m = Math.floor((secsLeft % 3600) / 60);
+      const s = secsLeft % 60;
+      if (h > 0) return `${h}h ${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s`;
+      return `${m}m ${String(s).padStart(2, "0")}s`;
+    }
+    setNextRunStr(computeNextRun());
+    const id = setInterval(() => setNextRunStr(computeNextRun()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
@@ -362,7 +382,9 @@ export default function AgentPage() {
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 <span className="px-2.5 py-1 bg-secondary text-muted-foreground rounded-lg border border-border/50">Currently Watching: Markets #0, #1, #2, #3</span>
                 <span className="px-2.5 py-1 bg-secondary text-muted-foreground rounded-lg border border-border/50">Active Positions: {Number(activeBets)}/5</span>
-                <span className="px-2.5 py-1 bg-secondary text-muted-foreground rounded-lg border border-border/50">Next run: ~6h</span>
+                <span className="px-2.5 py-1 bg-accent/10 text-accent rounded-lg border border-accent/20 font-mono tabular-nums">
+                  ⏱ Next run: {nextRunStr || "…"}
+                </span>
               </div>
             </div>
           </div>

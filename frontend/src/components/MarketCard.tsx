@@ -175,38 +175,23 @@ export default function MarketCard({ market, onSelect, isSelected }: MarketCardP
         </div>
       </div>
 
-      {/* Oracle governance params */}
-      {oracleParams && (
-        <div className="mt-2 pt-2 border-t border-border/20 flex items-center gap-2 flex-wrap">
-          <span className="text-[9px] text-muted-foreground">Oracle:</span>
-          {oracleParams.dataSources.map((src) => (
-            <span
-              key={src}
-              className="text-[9px] text-muted-foreground bg-secondary/60 px-1.5 py-0.5 rounded font-mono"
-            >
-              {src}
-            </span>
-          ))}
-          <span className="text-[9px] text-muted-foreground ml-auto">
-            {oracleParams.consensusThreshold}% consensus
-          </span>
-        </div>
-      )}
-
-      {/* Oracle source — always shown when no on-chain params override */}
-      {!oracleParams && (
-        <div className="mt-2 pt-1.5 text-[9px] text-muted-foreground flex items-center gap-1">
-          <svg className="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-          </svg>
-          {market.resolved ? "Resolved by: " : "Oracle: "}
+      {/* Oracle source — category always drives the name; chain adds consensus % if available */}
+      <div className="mt-2 pt-1.5 border-t border-border/20 text-[9px] text-muted-foreground flex items-center gap-1.5 flex-wrap">
+        <svg className="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+        </svg>
+        <span>{market.resolved ? "Resolved by:" : "Oracle:"}</span>
+        <span className="text-foreground/70 font-medium">
           {market.category === "Sports"
             ? "ESPN API + SportsRadar"
             : market.category === "Transit"
             ? "SL API + Google Transit API"
             : "OpenWeatherMap + WeatherAPI"}
-        </div>
-      )}
+        </span>
+        {oracleParams && oracleParams.consensusThreshold > 0 && (
+          <span className="ml-auto">{oracleParams.consensusThreshold}% consensus</span>
+        )}
+      </div>
 
       {/* View Details */}
       <div className="mt-2 pt-1.5 flex items-center justify-end gap-0.5 text-[10px] text-muted-foreground group-hover:text-primary/60 transition-colors">
