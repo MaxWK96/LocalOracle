@@ -1,7 +1,10 @@
 import { Market } from "./types";
 
-// Mock markets around Stockholm for demo
+// Only Weather markets — the CRE oracle workflow fetches rain-probability
+// from OpenWeatherMap + WeatherAPI. Sports, Transit, and Community markets
+// that require different data sources are not supported yet.
 export const MOCK_MARKETS: Market[] = [
+  // ── Stockholm, Sweden ───────────────────────────────────────────────────────
   {
     id: 0,
     creator: "0xA11CE000000000000000000000000000000000000",
@@ -18,34 +21,6 @@ export const MOCK_MARKETS: Market[] = [
   },
   {
     id: 1,
-    creator: "0xB0B0000000000000000000000000000000000000",
-    question: "Will the new metro line open on time?",
-    lat: 59.3326,
-    lng: 18.0649,
-    endTime: Math.floor(Date.now() / 1000) + 30 * 24 * 3600,
-    resolved: false,
-    outcome: false,
-    totalYesStake: BigInt(300e6),
-    totalNoStake: BigInt(450e6),
-    category: "Transit",
-    location: "T-Centralen, Stockholm",
-  },
-  {
-    id: 2,
-    creator: "0xC4FE000000000000000000000000000000000000",
-    question: "Will Djurgården win the derby this weekend?",
-    lat: 59.3454,
-    lng: 18.1042,
-    endTime: Math.floor(Date.now() / 1000) + 3 * 24 * 3600,
-    resolved: false,
-    outcome: false,
-    totalYesStake: BigInt(500e6),
-    totalNoStake: BigInt(520e6),
-    category: "Sports",
-    location: "Djurgården, Stockholm",
-  },
-  {
-    id: 3,
     creator: "0xDEAD000000000000000000000000000000000000",
     question: "Snow before March 15 in Södermalm?",
     lat: 59.3150,
@@ -61,7 +36,7 @@ export const MOCK_MARKETS: Market[] = [
 
   // ── Warsaw, Poland ──────────────────────────────────────────────────────────
   {
-    id: 4,
+    id: 2,
     creator: "0xE1E1000000000000000000000000000000000000",
     question: "Will the Vistula river exceed flood-warning level (550 cm) this week?",
     lat: 52.2297,
@@ -74,24 +49,10 @@ export const MOCK_MARKETS: Market[] = [
     category: "Weather",
     location: "Vistula Embankment, Warsaw",
   },
-  {
-    id: 5,
-    creator: "0xF2F2000000000000000000000000000000000000",
-    question: "Will the Warsaw Marathon close Nowy Świat before 09:00 on race day?",
-    lat: 52.2319,
-    lng: 21.0175,
-    endTime: Math.floor(Date.now() / 1000) + 5 * 24 * 3600,
-    resolved: false,
-    outcome: false,
-    totalYesStake: BigInt(120e6),
-    totalNoStake: BigInt(60e6),
-    category: "Community",
-    location: "Nowy Świat, Warsaw",
-  },
 
   // ── Gothenburg, Sweden ──────────────────────────────────────────────────────
   {
-    id: 6,
+    id: 3,
     creator: "0xA3A3000000000000000000000000000000000000",
     question: "Will it snow in central Gothenburg before Sunday?",
     lat: 57.7089,
@@ -103,19 +64,5 @@ export const MOCK_MARKETS: Market[] = [
     totalNoStake: BigInt(210e6),
     category: "Weather",
     location: "Avenyn, Gothenburg",
-  },
-  {
-    id: 7,
-    creator: "0xB4B4000000000000000000000000000000000000",
-    question: "Will the Gothenburg Half Marathon be cancelled due to extreme weather?",
-    lat: 57.7126,
-    lng: 11.9619,
-    endTime: Math.floor(Date.now() / 1000) + 10 * 24 * 3600,
-    resolved: false,
-    outcome: false,
-    totalYesStake: BigInt(90e6),
-    totalNoStake: BigInt(310e6),
-    category: "Community",
-    location: "Götaplatsen, Gothenburg",
   },
 ];

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import { WORLDID_APP_ID, WORLDID_ACTION, verifyWorldIDProof } from "@/lib/worldid";
 import type { ISuccessResult } from "@worldcoin/idkit";
@@ -18,24 +18,25 @@ interface WorldIDButtonProps {
 
 export default function WorldIDButton({ walletAddress, onVerified }: WorldIDButtonProps) {
   const [isVerified, setIsVerified] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Store nullifier_hash returned by our API so onSuccess can hand it off
+  const verifiedHashRef = useRef<string | null>(null);
 
+  // IDKit v2: handleVerify runs INSIDE the widget while it's still open.
+  // Throwing here shows an error state inside the widget (not outside).
   const handleVerify = useCallback(async (result: ISuccessResult) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await verifyWorldIDProof(result, walletAddress);
-      if (data.verified) {
-        setIsVerified(true);
-        onVerified(data.nullifier_hash);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Verification failed");
-    } finally {
-      setLoading(false);
+    const data = await verifyWorldIDProof(result, walletAddress);
+    if (!data.verified) throw new Error("Server rejected the proof");
+    verifiedHashRef.current = data.nullifier_hash;
+  }, [walletAddress]);
+
+  // IDKit v2: onSuccess fires after handleVerify succeeds and the widget closes.
+  const handleSuccess = useCallback(() => {
+    const hash = verifiedHashRef.current;
+    if (hash) {
+      setIsVerified(true);
+      onVerified(hash);
     }
-  }, [walletAddress, onVerified]);
+  }, [onVerified]);
 
   if (isVerified) {
     return (
@@ -49,33 +50,29 @@ export default function WorldIDButton({ walletAddress, onVerified }: WorldIDButt
   }
 
   return (
-    <div>
-      <IDKitWidget
-        app_id={WORLDID_APP_ID as `app_${string}`}
-        action={WORLDID_ACTION}
-        signal={walletAddress}
-        onSuccess={handleVerify}
-        verification_level={VerificationLevel.Orb}
-      >
-        {({ open }) => (
-          <button
-            onClick={open}
-            disabled={loading || !walletAddress}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-            ) : (
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-                <circle cx="12" cy="12" r="4" fill="currentColor" />
-              </svg>
-            )}
-            Verify with World ID
-          </button>
-        )}
-      </IDKitWidget>
-      {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
-    </div>
+    <IDKitWidget
+      app_id={WORLDID_APP_ID as `app_${string}`}
+      action={WORLDID_ACTION}
+      signal={walletAddress}
+      handleVerify={handleVerify}
+      onSuccess={handleSuccess}
+      // Device level works in World App without requiring Orb biometric scan
+      verification_level={VerificationLevel.Device}
+      action_description="Verify you are a unique human to participate in LocalOracle prediction markets"
+    >
+      {({ open }) => (
+        <button
+          onClick={open}
+          disabled={!walletAddress}
+          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+            <circle cx="12" cy="12" r="4" fill="currentColor" />
+          </svg>
+          Verify with World ID
+        </button>
+      )}
+    </IDKitWidget>
   );
 }

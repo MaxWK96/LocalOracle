@@ -353,13 +353,14 @@ export default function AgentPage() {
             <div>
               <h3 className="font-semibold mb-1">How This Agent Works</h3>
               <p className="text-sm text-muted-foreground">
-                This agent runs on the same{" "}
+                This agent trades on{" "}
                 <Link href="/" className="text-primary hover:underline">hyperlocal weather markets</Link>
-                {" "}shown on the Markets page. Every 6 hours it scans for markets expiring within 24h,
-                analyzes rain forecasts via Chainlink CRE, and places bets when the edge exceeds 20 percentage points.
+                {" "}— the only market type supported by the CRE oracle workflow.
+                Every 6 hours it scans all four active markets (Stockholm ×2, Warsaw, Gothenburg),
+                fetches rain/precipitation forecasts via Chainlink CRE, and places bets when the edge exceeds 20 percentage points.
               </p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                <span className="px-2.5 py-1 bg-secondary text-muted-foreground rounded-lg border border-border/50">Currently Watching: Markets #0, #1, #3</span>
+                <span className="px-2.5 py-1 bg-secondary text-muted-foreground rounded-lg border border-border/50">Currently Watching: Markets #0, #1, #2, #3</span>
                 <span className="px-2.5 py-1 bg-secondary text-muted-foreground rounded-lg border border-border/50">Active Positions: {Number(activeBets)}/5</span>
                 <span className="px-2.5 py-1 bg-secondary text-muted-foreground rounded-lg border border-border/50">Next run: ~6h</span>
               </div>

@@ -112,9 +112,12 @@ export default function MarketCard({ market, onSelect, isSelected }: MarketCardP
       {/* Agent / governance connection labels */}
       {!market.resolved && (
         <div className="flex items-center gap-1.5 mb-3">
-          <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent/10 border border-accent/20 text-accent font-medium">
-            🤖 Agent watching
-          </span>
+          {/* Agent only monitors weather markets — CRE workflow is weather-only */}
+          {market.category === "Weather" && (
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent/10 border border-accent/20 text-accent font-medium">
+              🤖 Agent watching
+            </span>
+          )}
           <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary font-medium">
             📋 Gov params v1.2
           </span>
@@ -190,18 +193,18 @@ export default function MarketCard({ market, onSelect, isSelected }: MarketCardP
         </div>
       )}
 
-      {/* Resolution method for resolved markets */}
-      {market.resolved && !oracleParams && (
+      {/* Oracle source — always shown when no on-chain params override */}
+      {!oracleParams && (
         <div className="mt-2 pt-1.5 text-[9px] text-muted-foreground flex items-center gap-1">
           <svg className="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
           </svg>
-          Resolved by:{" "}
+          {market.resolved ? "Resolved by: " : "Oracle: "}
           {market.category === "Sports"
-            ? "ESPN API + SportsRadar consensus"
+            ? "ESPN API + SportsRadar"
             : market.category === "Transit"
-            ? "SL API + Google Transit API consensus"
-            : "OpenWeatherMap + WeatherAPI consensus"}
+            ? "SL API + Google Transit API"
+            : "OpenWeatherMap + WeatherAPI"}
         </div>
       )}
 
