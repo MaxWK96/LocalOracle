@@ -80,7 +80,6 @@ export default function WorldIDButton({ walletAddress, onVerified }: WorldIDButt
         onSuccess={handleSuccess}
         // Device level: works in World App without requiring Orb biometric scan
         verification_level={VerificationLevel.Device}
-        action_description="Verify you are a unique human to participate in LocalOracle prediction markets"
       >
         {({ open }) => (
           <button
