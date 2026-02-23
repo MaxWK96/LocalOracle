@@ -208,6 +208,105 @@ Markets can only be resolved by the contract owner or a designated oracle addres
 
 ---
 
+## 🤖 AI Agent Evidence
+
+**Contract:** [0x2bFCe8Bbfb7ed531D12BD879f631195B183eD061](https://sepolia.etherscan.io/address/0x2bFCe8Bbfb7ed531D12BD879f631195B183eD061#readContract)
+- ✅ Verified on Etherscan
+- ✅ Funded with 100 USDC bankroll
+- ✅ Registered in PredictionMarket
+- ✅ Production-ready with security controls
+
+**CRE Workflow:** `oracle-workflow/agent-main.ts` (369 lines, 19KB)
+
+**Trading Strategy:**
+- Scans markets expiring within 24h every 6 hours
+- Fetches weather forecasts from OpenWeatherMap + WeatherAPI
+- Calculates edge: `forecast_rain_prob - market_implied_yes_prob`
+- Places bet when `|edge| > 20pp`
+- Position size: 1.5% of bankroll (2% hard cap enforced on-chain)
+- Max 5 concurrent positions
+
+**Security:** `onlyWorkflow` modifier ensures only authorized CRE workflow can execute trades
+
+---
+
+## 🗳️ Governance Evidence
+
+**OracleGovernanceToken (LOG):** [0x62C232B0acd06A7b215997e246F01f4F788Bb217](https://sepolia.etherscan.io/address/0x62C232B0acd06A7b215997e246F01f4F788Bb217#readContract)
+**OracleParameterRegistry:** [0x9224Ac9D4F9BFFA50E37D846c6d0FC7234e90D3C](https://sepolia.etherscan.io/address/0x9224Ac9D4F9BFFA50E37D846c6d0FC7234e90D3C#readContract)
+
+**Governable Parameters:**
+- Data sources (which APIs to use)
+- Consensus threshold (50-100%)
+- Settlement fee (basis points)
+- AI provider (Anthropic/OpenAI)
+
+**Earning LOG:**
+- 100 LOG per market created
+- 1 LOG per USDC staked in markets
+
+---
+
+## 📋 Deployed Contracts (All Verified)
+
+| Contract | Address | Etherscan |
+|----------|---------|-----------|
+| PredictionMarket | `0x59b5ff6AC21F763d00867Bd2b7b59381229Cb399` | [View](https://sepolia.etherscan.io/address/0x59b5ff6AC21F763d00867Bd2b7b59381229Cb399#readContract) |
+| MarketAgent | `0x2bFCe8Bbfb7ed531D12BD879f631195B183eD061` | [View](https://sepolia.etherscan.io/address/0x2bFCe8Bbfb7ed531D12BD879f631195B183eD061#readContract) |
+| OracleGovernanceToken | `0x62C232B0acd06A7b215997e246F01f4F788Bb217` | [View](https://sepolia.etherscan.io/address/0x62C232B0acd06A7b215997e246F01f4F788Bb217#readContract) |
+| OracleParameterRegistry | `0x9224Ac9D4F9BFFA50E37D846c6d0FC7234e90D3C` | [View](https://sepolia.etherscan.io/address/0x9224Ac9D4F9BFFA50E37D846c6d0FC7234e90D3C#readContract) |
+
+---
+
+## 🏆 Prize Categories
+
+This project targets 6 Chainlink Convergence Hackathon prize categories:
+
+1. **Prediction Markets** - Hyperlocal markets with geo-fencing
+2. **WorldID Integration** - Sybil resistance via stake caps
+3. **World Mini Map** - Geo-fencing eligibility
+4. **Thirdweb × CRE** - Wallet integration
+5. **Tokenization** - LOG governance token
+6. **AI Agents** - Autonomous trading via CRE
+
+## Chainlink Integration Files
+
+Every file in this repository that directly uses a Chainlink service, SDK, or on-chain primitive.
+
+### CRE Workflow — core runtime
+
+- [`oracle-workflow/main.ts`](https://github.com/MaxWK96/LocalOracle/blob/main/oracle-workflow/main.ts) — CRE settlement workflow: `CronCapability` trigger every 10 min, `EVMClient` reads expired markets, `HTTPClient` fetches OWM + WeatherAPI, `ConsensusAggregationByFields` for multi-node agreement, `consensusIdenticalAggregation` for AI adjudication result, `prepareReportRequest` + `EVMClient.writeReport` to call `resolveMarket()` on-chain
+- [`oracle-workflow/agent-main.ts`](https://github.com/MaxWK96/LocalOracle/blob/main/oracle-workflow/agent-main.ts) — CRE autonomous trading agent: `CronCapability` trigger every 6 h, reads bankroll from `MarketAgent` via `EVMClient`, fetches rain-probability forecasts via `HTTPClient`, calculates forecast-vs-market edge, calls `MarketAgent.placeBet()` via `EVMClient.writeReport` when `|edge| > 20 pp`
+- [`oracle-workflow/workflow.yaml`](https://github.com/MaxWK96/LocalOracle/blob/main/oracle-workflow/workflow.yaml) — CRE workflow settings file: maps `workflow-name`, `workflow-path` (`main.ts`), and `config-path` for staging and production DON deployment
+- [`oracle-workflow/workflow-agent.yaml`](https://github.com/MaxWK96/LocalOracle/blob/main/oracle-workflow/workflow-agent.yaml) — CRE agent workflow settings file: mirrors `workflow.yaml` structure but targets `agent-main.ts` and `config.agent.json`
+- [`oracle-workflow/package.json`](https://github.com/MaxWK96/LocalOracle/blob/main/oracle-workflow/package.json) — declares `@chainlink/cre-sdk ^1.0.7` as the runtime dependency for all CRE primitives used in the workflows
+- [`oracle-workflow/lib/abi.ts`](https://github.com/MaxWK96/LocalOracle/blob/main/oracle-workflow/lib/abi.ts) — minimal `PredictionMarket` ABI consumed by `EVMClient` inside the settlement workflow (`getMarket`, `nextMarketId`, `resolveMarket`)
+- [`oracle-workflow/lib/agent-abi.ts`](https://github.com/MaxWK96/LocalOracle/blob/main/oracle-workflow/lib/agent-abi.ts) — minimal `MarketAgent` ABI consumed by `EVMClient` inside the trading agent (`placeBet`, `getStats`, `activeBetCount`)
+
+### CRE project configuration
+
+- [`project.yaml`](https://github.com/MaxWK96/LocalOracle/blob/main/project.yaml) — CRE project root: defines `staging-settings` and `production-settings` with Sepolia RPC endpoints used by the DON to execute both workflows
+
+### Smart Contracts
+
+- [`contracts/src/PredictionMarket.sol`](https://github.com/MaxWK96/LocalOracle/blob/main/contracts/src/PredictionMarket.sol) — core market contract: exposes `resolveMarket(marketId, outcome)` callable only by the designated CRE DON oracle address; emits `MarketResolved` events consumed by the settlement workflow
+- [`contracts/src/MarketAgent.sol`](https://github.com/MaxWK96/LocalOracle/blob/main/contracts/src/MarketAgent.sol) — on-chain wallet for the CRE trading agent: `onlyWorkflow` modifier restricts `placeBet()` to the registered CRE workflow address; enforces 2 % bankroll cap and max-5-position limit on-chain
+- [`contracts/src/OracleParameterRegistry.sol`](https://github.com/MaxWK96/LocalOracle/blob/main/contracts/src/OracleParameterRegistry.sol) — governance registry: LOG token holders propose and vote on the oracle parameters (`dataSources`, `consensusThreshold`, `aiProvider`) that the CRE settlement workflow reads at runtime
+- [`contracts/src/OracleGovernanceToken.sol`](https://github.com/MaxWK96/LocalOracle/blob/main/contracts/src/OracleGovernanceToken.sol) — ERC-20 LOG token: governs which data sources and consensus rules the CRE workflow uses; distributed to market creators and participants
+
+### Deployment Scripts
+
+- [`contracts/script/Deploy.s.sol`](https://github.com/MaxWK96/LocalOracle/blob/main/contracts/script/Deploy.s.sol) — Foundry deploy script: deploys all four contracts and calls `setOracle(creWorkflowAddress)` on `PredictionMarket` to authorize the CRE DON
+- [`contracts/script/RedeployAgent.s.sol`](https://github.com/MaxWK96/LocalOracle/blob/main/contracts/script/RedeployAgent.s.sol) — re-deploys `MarketAgent` with a new CRE workflow address and calls `setCoreWorkflow()` to update the `onlyWorkflow` guard
+
+### Tests
+
+- [`contracts/test/PredictionMarket.t.sol`](https://github.com/MaxWK96/LocalOracle/blob/main/contracts/test/PredictionMarket.t.sol) — Forge tests for CRE-triggered `resolveMarket()`, oracle access-control enforcement, and payout distribution
+- [`contracts/test/MarketAgent.t.sol`](https://github.com/MaxWK96/LocalOracle/blob/main/contracts/test/MarketAgent.t.sol) — Forge tests for `onlyWorkflow` guard, bankroll cap, concurrent-position limit, and `settleBet()` after CRE resolution
+- [`contracts/test/OracleParameterRegistry.t.sol`](https://github.com/MaxWK96/LocalOracle/blob/main/contracts/test/OracleParameterRegistry.t.sol) — Forge tests for LOG-gated governance proposals, voting, quorum checks, and parameter execution consumed by the CRE workflow
+
+---
+
 ## License
 
 MIT
