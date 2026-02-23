@@ -25,7 +25,7 @@ export default function WorldIDButton({ walletAddress, onVerified }: WorldIDButt
   // Throwing here shows an error state inside the widget (not outside).
   const handleVerify = useCallback(async (result: ISuccessResult) => {
     const data = await verifyWorldIDProof(result, walletAddress);
-    if (!data.verified) throw new Error("Server rejected the proof");
+    if (!data.success) throw new Error("Server rejected the proof");
     verifiedHashRef.current = data.nullifier_hash;
   }, [walletAddress]);
 

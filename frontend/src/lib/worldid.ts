@@ -18,5 +18,5 @@ export async function verifyWorldIDProof(proof: {
     throw new Error(err.detail || "WorldID verification failed");
   }
 
-  return res.json() as Promise<{ verified: boolean; nullifier_hash: string }>;
+  return res.json() as Promise<{ success: boolean; nullifier_hash: string }>;
 }
