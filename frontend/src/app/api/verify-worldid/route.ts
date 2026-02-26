@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { keccak256, encodeAbiParameters, pad, toHex } from "viem";
+import { keccak256, toHex } from "viem";
 
 /**
- * Replicates IDKit's hashToField(signal):
- *   keccak256(abi.encode(bytes32(signal, right-padded))) >> 8
- * This must match the signal_hash embedded in the ZK proof by the widget.
+ * Matches IDKit v2 (idkit-core) hashToField exactly:
+ *   - Hex/bytes input (e.g. wallet address 0x...): keccak256(raw_bytes) >> 8
+ *   - Plain string: keccak256(utf8_bytes) >> 8
+ * The old implementation right-padded to 32 bytes first, producing a different
+ * hash than the one IDKit embeds in the ZK proof → "invalid_proof" from the API.
  */
 function hashToField(signal: string): string {
-  const signalHex: `0x${string}` = signal.startsWith("0x")
+  const input: `0x${string}` = signal.startsWith("0x")
     ? (signal as `0x${string}`)
-    : toHex(signal);
-  const padded = pad(signalHex, { dir: "right", size: 32 });
-  const packed = encodeAbiParameters([{ type: "bytes32" }], [padded]);
-  const hash = BigInt(keccak256(packed)) >> BigInt(8);
-  return `0x${hash.toString(16).padStart(62, "0")}`;
+    : toHex(signal);           // UTF-8 string → hex bytes
+  const hash = BigInt(keccak256(input)) >> BigInt(8);
+  return `0x${hash.toString(16).padStart(64, "0")}`;
 }
 
 export async function POST(req: NextRequest) {
@@ -70,7 +70,8 @@ export async function POST(req: NextRequest) {
       detail: data.detail,
     });
 
-    if (!verifyRes.ok || data.verification_status !== "verified") {
+    // World ID API v2 returns 200 with { nullifier_hash, created_at } on success — no verification_status field.
+    if (!verifyRes.ok) {
       return NextResponse.json(
         {
           success: false,
