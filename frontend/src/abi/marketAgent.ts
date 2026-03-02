@@ -15,6 +15,28 @@ export const MARKET_AGENT_ABI = [
   },
   {
     type: "function",
+    name: "getBetCount",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getBet",
+    inputs: [{ name: "index", type: "uint256", internalType: "uint256" }],
+    outputs: [
+      { name: "marketId",  type: "uint256", internalType: "uint256" },
+      { name: "outcome",   type: "bool",    internalType: "bool"    },
+      { name: "amount",    type: "uint256", internalType: "uint256" },
+      { name: "timestamp", type: "uint256", internalType: "uint256" },
+      { name: "settled",   type: "bool",    internalType: "bool"    },
+      { name: "pnl",       type: "int256",  internalType: "int256"  },
+      { name: "reasoning", type: "string",  internalType: "string"  },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "marketToBetIndex",
     inputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
@@ -45,5 +67,24 @@ export const MARKET_AGENT_ABI = [
     inputs: [],
     outputs: [{ name: "", type: "address", internalType: "address" }],
     stateMutability: "view",
+  },
+  // ─── Events ──────────────────────────────────────────────────────────────
+  {
+    type: "event",
+    name: "BetPlaced",
+    inputs: [
+      { name: "marketId",  type: "uint256", indexed: true  },
+      { name: "outcome",   type: "bool",    indexed: false },
+      { name: "amount",    type: "uint256", indexed: false },
+      { name: "reasoning", type: "string",  indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "BetSettled",
+    inputs: [
+      { name: "marketId", type: "uint256", indexed: true  },
+      { name: "pnl",      type: "int256",  indexed: false },
+    ],
   },
 ] as const;

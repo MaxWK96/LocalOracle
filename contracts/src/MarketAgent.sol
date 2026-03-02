@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "./interfaces/IERC20.sol";
 import "./PredictionMarket.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title  MarketAgent
 /// @notice On-chain wallet for the LocalOracle autonomous AI agent.
@@ -13,11 +14,10 @@ import "./PredictionMarket.sol";
 ///         Settlement is permissionless — anyone may call settleBet() after a
 ///         market resolves.  Losing bets are handled gracefully via try/catch
 ///         so a single failed claim never blocks the rest of the portfolio.
-contract MarketAgent {
+contract MarketAgent is Ownable {
     // ─── State ───────────────────────────────────────────────────────────────
     IERC20           public usdc;
     PredictionMarket public market;
-    address          public owner;
     address          public coreWorkflow; // Only CRE workflow can place bets
 
     uint256 public totalBets;
@@ -58,20 +58,14 @@ contract MarketAgent {
     error InsufficientBalance();
 
     // ─── Constructor ─────────────────────────────────────────────────────────
-    constructor(address _usdc, address _market, address _owner) {
-        usdc   = IERC20(_usdc);
-        market = PredictionMarket(_market);
-        owner  = _owner;
+    constructor(address _usdc, address _market, address _owner) Ownable(_owner) {
+    usdc   = IERC20(_usdc);
+    market = PredictionMarket(_market);
     }
 
     // ─── Modifiers ───────────────────────────────────────────────────────────
     modifier onlyWorkflow() {
         if (msg.sender != coreWorkflow) revert OnlyWorkflow();
-        _;
-    }
-
-    modifier onlyOwner() {
-        if (msg.sender != owner) revert OnlyOwner();
         _;
     }
 

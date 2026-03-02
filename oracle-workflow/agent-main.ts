@@ -49,8 +49,6 @@ const configSchema = z.object({
 	marketAgentAddress: z.string(),
 	chainSelectorName: z.string(),
 	gasLimit: z.string(),
-	openWeatherApiKey: z.string(),
-	weatherApiKey: z.string(),
 })
 
 type Config = z.infer<typeof configSchema>
@@ -364,6 +362,8 @@ const analyzeMarket = (
 	evmClient: EVMClient,
 	market: MarketData,
 	bankroll: bigint,
+	owmApiKey: string,
+	waApiKey: string,
 ): void => {
 	const lat = Number(market.lat) / 1e6
 	const lng = Number(market.lng) / 1e6
@@ -404,7 +404,7 @@ const analyzeMarket = (
 			available: identical,
 		}),
 	)
-	const owmForecast = owmForecaster(lat, lng, config.openWeatherApiKey).result()
+	const owmForecast = owmForecaster(lat, lng, owmApiKey).result()
 
 	const waForecaster = httpClient.sendRequest(
 		runtime,
@@ -416,7 +416,7 @@ const analyzeMarket = (
 			available: identical,
 		}),
 	)
-	const waForecast = waForecaster(lat, lng, config.weatherApiKey).result()
+	const waForecast = waForecaster(lat, lng, waApiKey).result()
 
 	runtime.log(`     OWM Forecast:        "${owmForecast.description}" → ${owmForecast.available ? owmForecast.rainProbability + '%' : 'unavailable'}`)
 	runtime.log(`     WeatherAPI Forecast: "${waForecast.description}" → ${waForecast.available ? waForecast.rainProbability + '%' : 'unavailable'}`)
@@ -476,6 +476,11 @@ const runAgent = (runtime: Runtime<Config>): string => {
 	runtime.log('════════════════════════════════════════════════════════════')
 	runtime.log(`  Run time: ${new Date().toISOString()}`)
 
+	const owmApiKey = process.env.OPENWEATHER_API_KEY
+	const waApiKey = process.env.WEATHERAPI_KEY
+	if (!owmApiKey) throw new Error('Missing env var: OPENWEATHER_API_KEY')
+	if (!waApiKey) throw new Error('Missing env var: WEATHERAPI_KEY')
+
 	const network = getNetwork({
 		chainFamily: 'evm',
 		chainSelectorName: config.chainSelectorName,
@@ -523,7 +528,7 @@ const runAgent = (runtime: Runtime<Config>): string => {
 	const httpClient = new HTTPClient()
 
 	for (const market of markets) {
-		analyzeMarket(runtime, config, httpClient, evmClient, market, bankroll)
+		analyzeMarket(runtime, config, httpClient, evmClient, market, bankroll, owmApiKey, waApiKey)
 	}
 
 	runtime.log('')
