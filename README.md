@@ -8,6 +8,32 @@ Built for the [Chainlink Convergence Hackathon 2026](https://chain.link/hackatho
 
 ---
 
+## The problem your project addresses
+
+Prediction markets are global and coarse-grained — you can bet on national elections or stock prices, but not on whether the street outside your house will flood, or whether your local half-marathon will be cancelled due to snow. No platform supports hyperlocal, GPS-pinned prediction markets because there is no decentralized oracle infrastructure capable of resolving them: fetching weather data for an exact lat/lng pair, running consensus across independent sources, and writing the result on-chain without a trusted intermediary. Without this, local communities have no trustless mechanism for collectively forecasting and hedging against neighborhood-scale weather events.
+
+---
+
+## How you've addressed the problem
+
+LocalOracle lets anyone pin a prediction market to a GPS coordinate. When the market expires, a Chainlink CRE workflow automatically fetches current weather data for that exact location from two independent APIs (OpenWeatherMap + WeatherAPI), runs consensus across all DON nodes, and calls `resolveMarket()` on-chain. If the two weather sources disagree, Anthropic Claude adjudicates based on the raw condition codes — with the AI call also run through CRE consensus so no single node can manipulate the verdict. Sybil resistance is enforced via WorldID proof-of-personhood, capping each verified human at 100 USDC per market. An autonomous AI agent (MarketAgent) trades on these markets every 6 hours, comparing forecast rain probability against market-implied odds and placing bets when the edge exceeds 20 percentage points.
+
+---
+
+## How you've used CRE
+
+The entire oracle and trading layer runs as two CRE TypeScript workflows compiled to WASM and executed on Chainlink DON nodes:
+
+**Settlement workflow** (`oracle-workflow/main.ts`): `CronCapability` fires every 10 minutes → `EVMClient.callContract` reads all on-chain markets → `HTTPClient.sendRequest` fetches weather from two APIs with `ConsensusAggregationByFields` (all nodes must agree on the result) → if sources disagree, `HTTPClient.sendRequest` calls Anthropic Claude with `consensusIdenticalAggregation` (all nodes must return the same YES/NO) → `prepareReportRequest` + `EVMClient.writeReport` submits the settlement transaction.
+
+**Agent trading workflow** (`oracle-workflow/agent-main.ts`): `CronCapability` fires every 6 hours → `EVMClient.callContract` reads bankroll from `MarketAgent` → `HTTPClient.sendRequest` fetches rain-probability forecasts with `ConsensusAggregationByFields` → calculates edge vs market-implied odds → `EVMClient.writeReport` calls `MarketAgent.placeBet()` when `|edge| > 20pp`.
+
+The critical CRE capability is `ConsensusAggregationByFields` on HTTP results: every DON node independently fetches the same weather APIs and must agree on the field-level result before any on-chain write is submitted. This makes the oracle manipulation-resistant without any trusted intermediary.
+
+**Natural extension — Chainlink Privacy Standard:** The Anthropic API key and weather API keys are currently in the workflow config shared with DON nodes. Moving them to CRE `secrets-path` with Confidential HTTP would run the AI adjudication call inside a TEE, hiding the key and the prompt from node operators and preventing manipulation of the tiebreaker.
+
+---
+
 ## Architecture
 
 ```
@@ -150,10 +176,18 @@ cd oracle-workflow
 bun install
 bun run build  # TypeScript compilation
 
-# Run CRE simulation
+# Configure environment (required before any cre command)
+cp .env.example .env
+# Edit .env — set CRE_ETH_PRIVATE_KEY, OPENWEATHER_API_KEY, WEATHERAPI_KEY
+
+# Configure workflow (required for settlement workflow)
+cp config.staging.example.json config.staging.json
+# Edit config.staging.json — set anthropicApiKey
+
+# Run CRE simulation (no broadcast, no testnet writes)
 cre workflow simulate --settings staging-settings
 
-# Run against live testnet
+# Run against live testnet (writes resolveMarket() on-chain)
 cre workflow simulate --settings staging-settings --broadcast
 ```
 
@@ -251,7 +285,7 @@ Markets can only be resolved by the contract owner or a designated oracle addres
 
 | Contract | Address | Etherscan |
 |----------|---------|-----------|
-| PredictionMarket | `0x59b5ff6AC21F763d00867Bd2b7b59381229Cb399` | [View](https://sepolia.etherscan.io/address/0x59b5ff6AC21F763d00867Bd2b7b59381229Cb399#readContract) |
+| PredictionMarket | `0x192403dE32d297e58f3CdbCADbfBfd2fd16ff2F2` | [View](https://sepolia.etherscan.io/address/0x192403dE32d297e58f3CdbCADbfBfd2fd16ff2F2#readContract) |
 | MarketAgent | `0x2bFCe8Bbfb7ed531D12BD879f631195B183eD061` | [View](https://sepolia.etherscan.io/address/0x2bFCe8Bbfb7ed531D12BD879f631195B183eD061#readContract) |
 | OracleGovernanceToken | `0x62C232B0acd06A7b215997e246F01f4F788Bb217` | [View](https://sepolia.etherscan.io/address/0x62C232B0acd06A7b215997e246F01f4F788Bb217#readContract) |
 | OracleParameterRegistry | `0x9224Ac9D4F9BFFA50E37D846c6d0FC7234e90D3C` | [View](https://sepolia.etherscan.io/address/0x9224Ac9D4F9BFFA50E37D846c6d0FC7234e90D3C#readContract) |
