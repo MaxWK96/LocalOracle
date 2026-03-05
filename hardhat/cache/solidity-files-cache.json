@@ -1,0 +1,193 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\macki\\Desktop\\LocalOracle\\hardhat\\contracts\\interfaces\\IERC20.sol": {
+      "lastModificationDate": 1772707581643,
+      "contentHash": "c1f36bc33018a3b0e48662518cc23cf5",
+      "sourceName": "contracts/interfaces/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "C:\\Users\\macki\\Desktop\\LocalOracle\\hardhat\\contracts\\PredictionMarket.sol": {
+      "lastModificationDate": 1772707581538,
+      "contentHash": "b92d7d7f43e2f1d48849aae79fd00457",
+      "sourceName": "contracts/PredictionMarket.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IWorldID.sol",
+        "./interfaces/IERC20.sol",
+        "./OracleGovernanceToken.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "PredictionMarket"
+      ]
+    },
+    "C:\\Users\\macki\\Desktop\\LocalOracle\\hardhat\\contracts\\interfaces\\IWorldID.sol": {
+      "lastModificationDate": 1772707581609,
+      "contentHash": "45302e3658d44cb9e58744a1ce9eb393",
+      "sourceName": "contracts/interfaces/IWorldID.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IWorldID"
+      ]
+    },
+    "C:\\Users\\macki\\Desktop\\LocalOracle\\hardhat\\contracts\\OracleGovernanceToken.sol": {
+      "lastModificationDate": 1772707581572,
+      "contentHash": "dd22ca2a12e37292ffca73da6894f7d5",
+      "sourceName": "contracts/OracleGovernanceToken.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "OracleGovernanceToken"
+      ]
+    },
+    "C:\\Users\\macki\\Desktop\\LocalOracle\\hardhat\\contracts\\MockContracts.sol": {
+      "lastModificationDate": 1772707589412,
+      "contentHash": "4537bf0a788fa4bc1b1174cf82d03d3e",
+      "sourceName": "contracts/MockContracts.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IWorldID.sol",
+        "./interfaces/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "MockERC20",
+        "MockWorldID"
+      ]
+    }
+  }
+}

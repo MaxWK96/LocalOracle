@@ -1,0 +1,16 @@
+{
+  "name": "localoracle-hardhat",
+  "version": "1.0.0",
+  "scripts": {
+    "deploy": "hardhat run scripts/deploy.js --network sepolia",
+    "create-market": "hardhat run scripts/create-quick-market.ts --network sepolia",
+    "settle": "hardhat run scripts/settle-via-onreport.ts --network sepolia"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  }
+}

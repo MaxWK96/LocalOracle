@@ -4,7 +4,9 @@
 	"description": "LocalOracle CRE Workflow - Prediction Market Resolution Oracle",
 	"main": "dist/main.js",
 	"scripts": {
-		"build": "tsc"
+		"build": "tsc",
+		"cre:broadcast": "C:\\Users\\macki\\Downloads\\cre_windows_amd64\\cre_v1.2.0.exe workflow simulate ./oracle-workflow --non-interactive --trigger-index 0 -T staging-settings --broadcast",
+		"cre:simulate": "C:\\Users\\macki\\Downloads\\cre_windows_amd64\\cre_v1.2.0.exe workflow simulate ./oracle-workflow --non-interactive --trigger-index 0 -T staging-settings"
 	},
 	"dependencies": {
 		"@chainlink/cre-sdk": "^1.0.7",
