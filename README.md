@@ -6,6 +6,8 @@ LocalOracle is a prediction market platform where users create location-based we
 
 Built for the [Chainlink Convergence Hackathon 2026](https://chain.link/hackathon).
 
+**Demo:** [https://www.youtube.com/watch?v=aZm9UbzlRDQ](https://www.youtube.com/watch?v=aZm9UbzlRDQ)
+
 ---
 
 ## The problem your project addresses
@@ -29,6 +31,8 @@ The entire oracle and trading layer runs as two CRE TypeScript workflows compile
 **Agent trading workflow** (`oracle-workflow/agent-main.ts`): `CronCapability` fires every 6 hours → `EVMClient.callContract` reads bankroll from `MarketAgent` → `HTTPClient.sendRequest` fetches rain-probability forecasts with `ConsensusAggregationByFields` → calculates edge vs market-implied odds → `EVMClient.writeReport` calls `MarketAgent.placeBet()` when `|edge| > 20pp`.
 
 The critical CRE capability is `ConsensusAggregationByFields` on HTTP results: every DON node independently fetches the same weather APIs and must agree on the field-level result before any on-chain write is submitted. This makes the oracle manipulation-resistant without any trusted intermediary.
+
+**Demo walkthrough:** [https://www.youtube.com/watch?v=aZm9UbzlRDQ](https://www.youtube.com/watch?v=aZm9UbzlRDQ)
 
 **Natural extension — Chainlink Privacy Standard:** The Anthropic API key and weather API keys are currently in the workflow config shared with DON nodes. Moving them to CRE `secrets-path` with Confidential HTTP would run the AI adjudication call inside a TEE, hiding the key and the prompt from node operators and preventing manipulation of the tiebreaker.
 
