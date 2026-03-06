@@ -26,15 +26,15 @@ LocalOracle lets anyone pin a prediction market to a GPS coordinate. When the ma
 
 The entire oracle and trading layer runs as two CRE TypeScript workflows compiled to WASM and executed on Chainlink DON nodes:
 
-**Settlement workflow** (`oracle-workflow/main.ts`): `CronCapability` fires every 10 minutes → `EVMClient.callContract` reads all on-chain markets → `HTTPClient.sendRequest` fetches weather from two APIs with `ConsensusAggregationByFields` (all nodes must agree on the result) → if sources disagree, `HTTPClient.sendRequest` calls Anthropic Claude with `consensusIdenticalAggregation` (all nodes must return the same YES/NO) → `prepareReportRequest` + `EVMClient.writeReport` submits the settlement transaction.
+**Settlement workflow** (`oracle-workflow/main.ts`): `CronCapability` fires every 10 minutes → `EVMClient.callContract` reads all on-chain markets → **`ConfidentialHTTPClient.sendRequest`** fetches weather from two APIs inside a TEE with API keys injected as `{{.openWeatherApiKey}}` / `{{.weatherApiKey}}` vault secrets (`encryptOutput: true`) → `ConsensusAggregationByFields` requires all DON nodes to agree on the field-level result → if sources disagree, `HTTPClient.sendRequest` calls Anthropic Claude with `consensusIdenticalAggregation` (all nodes must return the same YES/NO) → `prepareReportRequest` + `EVMClient.writeReport` submits the settlement transaction.
 
 **Agent trading workflow** (`oracle-workflow/agent-main.ts`): `CronCapability` fires every 6 hours → `EVMClient.callContract` reads bankroll from `MarketAgent` → `HTTPClient.sendRequest` fetches rain-probability forecasts with `ConsensusAggregationByFields` → calculates edge vs market-implied odds → `EVMClient.writeReport` calls `MarketAgent.placeBet()` when `|edge| > 20pp`.
 
 The critical CRE capability is `ConsensusAggregationByFields` on HTTP results: every DON node independently fetches the same weather APIs and must agree on the field-level result before any on-chain write is submitted. This makes the oracle manipulation-resistant without any trusted intermediary.
 
-**Demo walkthrough:** [https://www.youtube.com/watch?v=aZm9UbzlRDQ](https://www.youtube.com/watch?v=aZm9UbzlRDQ)
+**Chainlink Privacy Standard (implemented):** Both weather API calls use `confidential-http@1.0.0-alpha` — the `ConfidentialHTTPSendRequester` sends requests from inside a TEE with API keys never exposed in workflow code or logs. `vaultDonSecrets` declared in `workflow.yaml` maps `openWeatherApiKey` and `weatherApiKey` to environment secrets. In the CRE simulator the vault template substitution is not performed, so the workflow detects the resulting 401 and falls back to config values automatically — the confidential-http capability is declared and attempted first on every run.
 
-**Natural extension — Chainlink Privacy Standard:** The Anthropic API key and weather API keys are currently in the workflow config shared with DON nodes. Moving them to CRE `secrets-path` with Confidential HTTP would run the AI adjudication call inside a TEE, hiding the key and the prompt from node operators and preventing manipulation of the tiebreaker.
+**Demo walkthrough:** [https://www.youtube.com/watch?v=aZm9UbzlRDQ](https://www.youtube.com/watch?v=aZm9UbzlRDQ)
 
 ---
 
@@ -145,7 +145,7 @@ LocalOracle/
 
 - [Bun](https://bun.sh) (runtime + package manager)
 - [Foundry](https://book.getfoundry.sh/) (smart contract toolchain)
-- [Chainlink CRE CLI](https://docs.chain.link/cre) (oracle workflow)
+- [Chainlink CRE CLI](https://github.com/smartcontractkit/cre-cli/releases) — install and add `cre` to your PATH
 
 ### 1. Clone and install
 
