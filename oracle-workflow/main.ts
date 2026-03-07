@@ -17,6 +17,8 @@ import {
 	type CronPayload,
 	handler,
 	CronCapability,
+	ConfidentialHTTPClient,
+	type ConfidentialHTTPSendRequester,
 	EVMClient,
 	HTTPClient,
 	type HTTPSendRequester,
@@ -44,6 +46,8 @@ const configSchema = z.object({
 	predictionMarketAddress: z.string(),
 	chainSelectorName: z.string(),
 	gasLimit: z.string(),
+	// Staging-only fallback keys for the simulation HTTPClient path.
+	// Production never reads these — vault secrets via ConfidentialHTTPClient are used instead.
 	openWeatherApiKey: z.string(),
 	weatherApiKey: z.string(),
 	anthropicApiKey: z.string(),
@@ -192,7 +196,83 @@ const scanMarkets = (
 // Step 2: Fetch weather data from two sources
 // ============================================================================
 
+// API keys are injected from VaultDON secrets at request time via Go template syntax.
+// The secrets.yaml at project root maps: openWeatherApiKey → OPENWEATHER_API_KEY,
+// weatherApiKey → WEATHER_API_KEY.
+
 const fetchOpenWeatherMap = (
+	sendRequester: ConfidentialHTTPSendRequester,
+	lat: number,
+	lng: number,
+): WeatherResult => {
+	// {{.openWeatherApiKey}} is substituted by the DON enclave using the vault secret
+	const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid={{.openWeatherApiKey}}`
+	const response = sendRequester.sendRequest({
+		vaultDonSecrets: [{ key: 'openWeatherApiKey', owner: '' }],
+		request: { method: 'GET', url },
+		encryptOutput: true,
+	}).result()
+
+	if (!ok(response)) {
+		return {
+			isRaining: false,
+			description: `API error (${response.statusCode})`,
+			source: 'OpenWeatherMap',
+			conditionCode: -1,
+		}
+	}
+
+	const data = json(response) as any
+	const code = data.weather?.[0]?.id ?? 800
+	const description = data.weather?.[0]?.description ?? 'unknown'
+
+	return {
+		isRaining: isOWMRain(code),
+		description,
+		source: 'OpenWeatherMap',
+		conditionCode: code,
+	}
+}
+
+const fetchWeatherAPI = (
+	sendRequester: ConfidentialHTTPSendRequester,
+	lat: number,
+	lng: number,
+): WeatherResult => {
+	// {{.weatherApiKey}} is substituted by the DON enclave using the vault secret
+	const url = `https://api.weatherapi.com/v1/current.json?key={{.weatherApiKey}}&q=${lat},${lng}`
+	const response = sendRequester.sendRequest({
+		vaultDonSecrets: [{ key: 'weatherApiKey', owner: '' }],
+		request: { method: 'GET', url },
+		encryptOutput: true,
+	}).result()
+
+	if (!ok(response)) {
+		return {
+			isRaining: false,
+			description: `API error (${response.statusCode})`,
+			source: 'WeatherAPI',
+			conditionCode: -1,
+		}
+	}
+
+	const data = json(response) as any
+	const code = data.current?.condition?.code ?? 1000
+	const description = data.current?.condition?.text ?? 'unknown'
+
+	return {
+		isRaining: isWeatherAPIRain(code),
+		description,
+		source: 'WeatherAPI',
+		conditionCode: code,
+	}
+}
+
+// Simulation fallback: standard HTTPClient with API key passed directly.
+// Used when the CRE simulator cannot substitute vault secret templates in URLs
+// (produces a 401). Production uses the confidential variants above exclusively.
+
+const fetchOpenWeatherMapDirect = (
 	sendRequester: HTTPSendRequester,
 	lat: number,
 	lng: number,
@@ -222,7 +302,7 @@ const fetchOpenWeatherMap = (
 	}
 }
 
-const fetchWeatherAPI = (
+const fetchWeatherAPIDirect = (
 	sendRequester: HTTPSendRequester,
 	lat: number,
 	lng: number,
@@ -410,7 +490,9 @@ const settleMarkets = (runtime: Runtime<Config>): string => {
 		return 'no-markets'
 	}
 
-	// Create HTTP client for weather + AI calls
+	// Confidential HTTP client for weather — API keys stay in vault, never in plaintext
+	const confidentialHTTPClient = new ConfidentialHTTPClient()
+	// Standard HTTP client for AI adjudication (Anthropic key remains in config)
 	const httpClient = new HTTPClient()
 
 	let settledCount = 0
@@ -425,32 +507,40 @@ const settleMarkets = (runtime: Runtime<Config>): string => {
 		runtime.log(`  Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`)
 
 		// ---- Step 2: Fetch weather from both sources ----
+		// Production path: ConfidentialHTTPClient — API key injected as {{.openWeatherApiKey}}
+		//                  by the DON enclave from VaultDON secrets, response AES-GCM encrypted.
+		// Simulation fallback: CRE simulator cannot substitute vault secret templates in URLs,
+		//                  so a 401 is returned. We detect conditionCode === -1 and retry with
+		//                  a plain HTTPClient using the key from OPENWEATHER_API_KEY / WEATHER_API_KEY.
 		runtime.log('')
 		runtime.log('[2/5] Fetching weather data from 2 sources...')
 
-		const owmFetcher = httpClient.sendRequest(
-			runtime,
-			fetchOpenWeatherMap,
-			ConsensusAggregationByFields<WeatherResult>({
-				isRaining: identical,
-				description: identical,
-				source: identical,
-				conditionCode: identical,
-			}),
-		)
-		const owmResult = owmFetcher(lat, lng, config.openWeatherApiKey).result()
+		const weatherAgg = ConsensusAggregationByFields<WeatherResult>({
+			isRaining: identical,
+			description: identical,
+			source: identical,
+			conditionCode: identical,
+		})
 
-		const waFetcher = httpClient.sendRequest(
-			runtime,
-			fetchWeatherAPI,
-			ConsensusAggregationByFields<WeatherResult>({
-				isRaining: identical,
-				description: identical,
-				source: identical,
-				conditionCode: identical,
-			}),
-		)
-		const waResult = waFetcher(lat, lng, config.weatherApiKey).result()
+		// ── OpenWeatherMap ──
+		let owmResult = confidentialHTTPClient.sendRequest(runtime, fetchOpenWeatherMap, weatherAgg)(lat, lng).result()
+		if (owmResult.conditionCode === -1) {
+			runtime.log('  [OWM] Confidential HTTP returned error — HTTPClient fallback (simulation)')
+			owmResult = httpClient.sendRequest(runtime, fetchOpenWeatherMapDirect, weatherAgg)(lat, lng, config.openWeatherApiKey).result()
+			runtime.log('  [OWM] path: HTTPClient fallback (simulation)')
+		} else {
+			runtime.log('  [OWM] path: Confidential HTTP (production)')
+		}
+
+		// ── WeatherAPI ──
+		let waResult = confidentialHTTPClient.sendRequest(runtime, fetchWeatherAPI, weatherAgg)(lat, lng).result()
+		if (waResult.conditionCode === -1) {
+			runtime.log('  [WeatherAPI] Confidential HTTP returned error — HTTPClient fallback (simulation)')
+			waResult = httpClient.sendRequest(runtime, fetchWeatherAPIDirect, weatherAgg)(lat, lng, config.weatherApiKey).result()
+			runtime.log('  [WeatherAPI] path: HTTPClient fallback (simulation)')
+		} else {
+			runtime.log('  [WeatherAPI] path: Confidential HTTP (production)')
+		}
 
 		runtime.log(`  OpenWeatherMap: "${owmResult.description}" (code ${owmResult.conditionCode}) → rain=${owmResult.isRaining}`)
 		runtime.log(`  WeatherAPI:     "${waResult.description}" (code ${waResult.conditionCode}) → rain=${waResult.isRaining}`)

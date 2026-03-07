@@ -1,0 +1,15 @@
+{
+  "name": "localoracle",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "create:demo-market": "npx tsx scripts/create-quick-market.ts"
+  },
+  "dependencies": {
+    "viem": "^2.46.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.0.0"
+  }
+}

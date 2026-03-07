@@ -11,7 +11,12 @@ staging-settings:
   workflow-artifacts:
     workflow-path: "./main.ts"
     config-path: "./config.staging.json"
-    secrets-path: ""
+    secrets-path: "../secrets.yaml"
+  vaultDonSecrets:
+    - key: openWeatherApiKey
+      owner: ""
+    - key: weatherApiKey
+      owner: ""
 
 # ==========================================================================
 production-settings:
@@ -20,4 +25,9 @@ production-settings:
   workflow-artifacts:
     workflow-path: "./main.ts"
     config-path: "./config.production.json"
-    secrets-path: ""
+    secrets-path: "../secrets.yaml"
+  vaultDonSecrets:
+    - key: openWeatherApiKey
+      owner: ""
+    - key: weatherApiKey
+      owner: ""
